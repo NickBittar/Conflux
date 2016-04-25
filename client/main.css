@@ -1,0 +1,22 @@
+/* CSS declarations go here */
+body {
+  background-color: #315481;
+  background-image: linear-gradient(to bottom, #315481, #918e82 100%);
+}
+.demo-card-wide.mdl-card {
+  width: 512px;
+  margin: auto;
+  top: 50px;
+}
+.demo-card-wide > .mdl-card__title {
+  color: #fff;
+  height: 176px;
+  background: url('https://getmdl.io/assets/demos/welcome_card.jpg') center / cover;
+}
+.demo-card-wide > .mdl-card__menu {
+  color: #fff;
+}
+form {
+  width: 300px;
+  margin: auto;
+}

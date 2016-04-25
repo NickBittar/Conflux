@@ -1,0 +1,32 @@
+<body>
+      <div class="demo-card-wide mdl-card mdl-shadow--2dp">
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text">Create Event</h2>
+        </div>
+        <div class="mdl-card__supporting-text">
+          <form class="new-event">
+              <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="text" name="event-name">
+                <label class="mdl-textfield__label" for="event-name">Event Name</label>
+              </div>
+              <br>
+              <input type="date" name="start-date" class="date" />
+              <input type="date" name="end-date" class="date" />
+              <div class="input-daterange input-group" id="datepicker">
+                  <input type="text" class="input-sm form-control" name="start" />
+                  <span class="input-group-addon">to</span>
+                  <input type="text" class="input-sm form-control" name="end" />
+              </div>
+              <br>
+              <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="text" name="password">
+                <label class="mdl-textfield__label" for="password">Password (optional)</label>
+              </div>
+
+          </form>
+        </div>
+        <div class="mdl-card__actions mdl-card--border">
+          <button class="submit-event mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Create</button>
+        </div>
+      </div>
+</body>
