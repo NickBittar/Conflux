@@ -20,3 +20,17 @@ form {
   width: 300px;
   margin: auto;
 }
+
+.day-title {
+  font-size: 24px;
+  background-color: #eee;
+  height: 80px;
+  width: 100%;
+}
+.day-time-container {
+  height: 200px;
+  width: 100%;
+  background-color: #aaa;
+  border: 1px solid #222;
+  border-radius: 4px;
+}
