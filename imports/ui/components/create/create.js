@@ -2,13 +2,12 @@ import { Meteor } from 'meteor/meteor';
 import { Template } from 'meteor/templating';
 import { Events } from '/imports/api/events.js';
 import './create.html';
-import '../submission/submission.html';
 
-Template.body.onCreated(function bodyOnCreated() {
+Template.create.onCreated(function bodyOnCreated() {
   Meteor.subscribe('events');
 });
 
-Template.body.events({
+Template.create.events({
   'submit .new-event'(event) {
     event.preventDefault();
 
