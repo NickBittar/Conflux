@@ -34,3 +34,43 @@ form {
   border: 1px solid #222;
   border-radius: 4px;
 }
+.mdl-card__supporting-text {
+  margin: auto;
+
+}
+.mdl-card__actions {
+  margin-top: 1rem;
+}
+.submit-event {
+  float: right;
+}
+.event-link {
+  display: none;
+}
+dialog.mdl-dialog {
+  width: 400px;
+}
+
+
+@media screen and (max-width: 512px) {
+  .demo-card-wide.mdl-card {
+    top: 0px;
+    width: 100%;
+    height: 100vh;
+  }
+  form {
+    width: 100%;
+  }
+  .demo-card-wide > .mdl-card__title {
+    height: 40vh;
+  }
+
+  .mdl-dialog {
+    width: 100vw;
+  }
+  .mdl-dialog__content {
+    padding: 24px 0;
+  }
+
+
+}

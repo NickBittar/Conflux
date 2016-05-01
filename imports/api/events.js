@@ -8,28 +8,25 @@ if (Meteor.isServer) {
   // Only publish tasks that are public or belong to the current user
   Meteor.publish('events', function eventsPublication() {
     return Events.find({
-      $or: [
-        { owner: this.userId },
+      //$or: [
+        //{ owner: this.userId },
         //{ submissions: { $elemMatch: { submitterId: this.userId } } },  // Allow submitters to view
-      ],
+      //],
     });
   });
 }
 
 Meteor.methods({
-  'events.insert'(text) {
-
-    Events.insert({
-      name,
-      startDate,
-      endDate,
-      startTime,
-      endTime,
+  'events.insert'(object) {
+    console.log('INSERTING...');
+    const id = Events.insert({
+      object,
       createdAt: new Date(),
-      owner: Meteor.userId(),
-      username: Meteor.user().username,
+      //owner: Meteor.userId(),
+      //username: Meteor.user().username,
     });
-
+    console.info(id);
+    return id;
   },
   'events.remove'(eventId) {
     const event = events.findOne(eventId);
