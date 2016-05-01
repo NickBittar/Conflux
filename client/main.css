@@ -65,7 +65,7 @@ dialog.mdl-dialog {
     height: 40vh;
   }
 
-  .mdl-dialog {
+  dialog.mdl-dialog {
     width: 100vw;
   }
   .mdl-dialog__content {

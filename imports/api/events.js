@@ -33,6 +33,11 @@ Meteor.methods({
 
     Events.remove(eventId);
   },
+  'events.find'(eventId) {
+    const event = events.findOne(eventId);
+
+    return event;
+  },
   'events.submit'(eventId, times) {
 
     const event = Events.findOne(eventId);

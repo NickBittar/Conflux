@@ -1,8 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 import { Template } from 'meteor/templating';
-import { Clipboard } from 'meteor/zenorocha:clipboard';
-import { Events } from '/imports/api/events.js'
+import { Events } from '/imports/api/events.js';
 import './create.html';
+import '../submission/submission.html';
 
 Template.body.onCreated(function bodyOnCreated() {
   Meteor.subscribe('events');
@@ -53,40 +53,19 @@ Template.body.events({
         return false;
       } else {
         console.info(result);
-        document.querySelector('#link-text').innerText = `http://localhost:3000/${result}`;
+        document.querySelector('#link-text').innerHTML = `<a href="http://localhost:3000/${result}">http://localhost:3000/${result}</a>`;
       }
     });
     $('.mdl-dialog__title').hide();
     $('.mdl-dialog__title').text("Event Created");
     $('.mdl-dialog__title').fadeIn();
-    $('.mdl-spinner').fadeOut();
+    $('.mdl-spinner').hide();
     $('.event-link').fadeIn();
-
   },
-  'click #copy'(event) {
-    console.log("CLICK");
-    let clipboard = new Clipboard('#link-text');
-    clipboard.on('success', function(e) {
-        console.info('Action:', e.action);
-        console.info('Text:', e.text);
-        console.info('Trigger:', e.trigger);
-
-        e.clearSelection();
-
-        const data = { message: 'Link Coped to your Clipboard.', timeout: 3000,};
-        document.querySelector('#demo-toast-example').MaterialSnackbar.showSnackbar(data);
-    });
-
-    clipboard.on('error', function(e) {
-        console.error('Action:', e.action);
-        console.error('Trigger:', e.trigger);
-
-        const data = { message: 'Error Copying.', timeout: 3000,};
-        document.querySelector('#demo-toast-example').MaterialSnackbar.showSnackbar(data);
-    });
-
+  'click .close'(event)
+  {
+    document.querySelector('dialog').close();
   },
-
 });
 
 
@@ -96,4 +75,5 @@ $(document).ready(function(){
     autoclose: true,
     todayHighlight: true
   });
+
 });
