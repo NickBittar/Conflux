@@ -22,7 +22,25 @@ form {
   width: 300px;
   margin: auto;
 }
-
+.centered {
+  margin: auto;
+}
+.spaced {
+  margin-top: 8px;
+  margin-bottom: 16px;
+}
+.full-width.mdl-card {
+  width: 90%;
+}
+div.time-box {
+  background-color: #D8E0E8;
+  padding: 0px;
+  margin: 8px;
+  border-radius: 8px;
+}
+.mdl-layout__content {
+  width: 100%;
+}
 .day-title {
   font-size: 24px;
   background-color: #eee;

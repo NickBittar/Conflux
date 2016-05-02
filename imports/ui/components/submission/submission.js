@@ -13,16 +13,18 @@ Template.submission.events({
 });
 
 Template.submission.helpers({
-  'Days': function() {
-    return Events.find();
-    Meteor.call("events.find", 'SChSe79yFAtLLrRef', function(error, result) {
-      if(error) {
-        console.error(error);
-        return false;
-      } else {
-        console.info(result);
-        return result;
-      }
-    });
+  'event': function() {
+    return Events.find({ _id: 'uE3ctXdLLLpNa5rvr' } );
+  },
+  'formatDate': function(date) {
+    return new Date(date).toDateString();
+  },
+  'day': function() {
+    const endDate = new Date('2016-05-06');
+    let days = [];
+    for (let d = new Date('2016-05-02'); d <= endDate; d.setDate(d.getDate() + 1)) {
+      days.push( { date: new Date(d) } );
+    }
+    return days;
   },
 });

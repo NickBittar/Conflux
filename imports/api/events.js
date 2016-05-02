@@ -20,7 +20,10 @@ Meteor.methods({
   'events.insert'(object) {
     console.log('INSERTING...');
     const id = Events.insert({
-      object,
+      eventName: object.eventName,
+      startDate: object.startDate,
+      endDate: object.endDate,
+      password: object.password,
       createdAt: new Date(),
       //owner: Meteor.userId(),
       //username: Meteor.user().username,
@@ -29,12 +32,12 @@ Meteor.methods({
     return id;
   },
   'events.remove'(eventId) {
-    const event = events.findOne(eventId);
+    const event = Events.findOne(eventId);
 
     Events.remove(eventId);
   },
   'events.find'(eventId) {
-    const event = events.findOne(eventId);
+    const event = Events.findOne(eventId);
 
     return event;
   },
