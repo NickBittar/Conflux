@@ -1,0 +1,28 @@
+<template name="event">
+    <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp centered">
+      <thead>
+        <tr>
+          <th class="mdl-data-table__cell--non-numeric">Event Name</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{ #each event }}
+        <tr>
+          <td class="mdl-data-table__cell--non-numeric">{{ eventName }}</td>
+          <td>{{ formatDate startDate }}</td>
+          <td>{{ formatDate endDate }}</td>
+        </tr>
+        {{ /each }}
+      </tbody>
+    </table>
+      {{ #each day }}
+        <div class="demo-card-image mdl-card mdl-shadow--2dp spaced full-width centered">
+          <div class="mdl-card__actions">
+            <span class="demo-card-image__filename">{{ formatDate date }}</span>
+          </div>
+          <div class="mdl-card__title mdl-card--expand time-box"></div>
+        </div>
+      {{ /each}}
+</template>

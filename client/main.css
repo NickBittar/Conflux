@@ -73,6 +73,11 @@ dialog.mdl-dialog {
 .mdl-textfield__label:after {
   bottom: 15px;
 }
+.mdl-mini-footer {
+  bottom: 0px;
+  width: 100vw;
+  position: absolute;
+}
 
 @media screen and (max-width: 512px) {
   .demo-card-wide.mdl-card {
