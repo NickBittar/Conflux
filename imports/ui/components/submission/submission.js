@@ -20,9 +20,9 @@ Template.submission.helpers({
     return new Date(date).toDateString();
   },
   'day': function() {
-    const endDate = new Date('2016-05-06');
+    const endDate = new Date(Events.findOne({ _id: 'uE3ctXdLLLpNa5rvr' } ).endDate);
     let days = [];
-    for (let d = new Date('2016-05-02'); d <= endDate; d.setDate(d.getDate() + 1)) {
+    for (let d = new Date(Events.findOne({ _id: 'uE3ctXdLLLpNa5rvr' } ).startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
       days.push( { date: new Date(d) } );
     }
     return days;
