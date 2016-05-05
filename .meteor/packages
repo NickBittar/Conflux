@@ -22,3 +22,4 @@ insecure                # Allow all DB writes from clients (for prototyping)
 rajit:bootstrap3-datepicker
 twbs:bootstrap
 zenorocha:clipboard
+kadira:flow-router
