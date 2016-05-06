@@ -1,10 +1,11 @@
 <template name="create">
+  <div class="create-area">
       <div class="demo-card-wide mdl-card mdl-shadow--2dp">
         <div class="mdl-card__title">
           <h2 class="mdl-card__title-text">Create Event</h2>
         </div>
         <div class="mdl-card__supporting-text">
-          <form class="new-event">
+          <form class="new-event" autocomplete="off">
               <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                 <input id="event-name" class="mdl-textfield__input" type="text" name="event-name">
                 <label class="mdl-textfield__label" for="event-name">Event Name</label>
@@ -29,6 +30,7 @@
         </div>
 
       </div>
+    </div>
       <div id="demo-toast-example" class="mdl-js-snackbar mdl-snackbar">
         <div class="mdl-snackbar__text"></div>
         <button class="mdl-snackbar__action" type="button"></button>

@@ -1,11 +1,16 @@
 /* CSS declarations go here */
 body {
+
+}
+#__blaze-root {
   background-color: #315481;
   background-image: linear-gradient(to bottom, #315481, #918e82 100%);
+  overflow: hidden;
 }
 .create-area {
+
   width: 512px;
-  margin: auto;
+  margin: 10% auto;
 }
 .demo-card-wide.mdl-card {
   width: 512px;
@@ -17,6 +22,15 @@ body {
 }
 .demo-card-wide > .mdl-card__menu {
   color: #fff;
+}
+div.mdl-dialog__content {
+    padding: 20px 0px 24px;
+}
+.floating-submit-button {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 2;
 }
 form {
   width: 300px;
@@ -70,7 +84,7 @@ div.time-box {
 dialog.mdl-dialog {
   width: 400px;
 }
-.mdl-textfield__label:after {
+label.mdl-textfield__label:after {
   bottom: 15px;
 }
 .mdl-mini-footer {

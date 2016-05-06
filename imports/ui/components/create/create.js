@@ -5,8 +5,15 @@ import './create.html';
 
 Template.create.onCreated(function bodyOnCreated() {
   Meteor.subscribe('events');
+  console.info('create templated created.');
 });
-
+Template.create.rendered=function() {
+  $('#date-container .input-daterange').datepicker({
+    startDate: "today",
+    autoclose: true,
+    todayHighlight: true
+  });
+}
 Template.create.events({
   'submit .new-event'(event) {
     event.preventDefault();
@@ -44,35 +51,24 @@ Template.create.events({
         password: password,
     }
 
-    console.info(newEvent);
-
     Meteor.call("events.insert", newEvent, function(error, result) {
       if(error) {
         console.error(error);
         return false;
       } else {
-        console.info(result);
-        document.querySelector('#link-text').innerHTML = `<a href="http://localhost:3000/${result}">http://localhost:3000/${result}</a>`;
+        document.querySelector('#link-text').innerHTML = `<a href="http://localhost:3000/submission/${result}">localhost:3000/submission/${result}</a>`;
       }
     });
+    setTimeout(function() {
     $('.mdl-dialog__title').hide();
     $('.mdl-dialog__title').text("Event Created");
     $('.mdl-dialog__title').fadeIn();
     $('.mdl-spinner').hide();
     $('.event-link').fadeIn();
+  }, 1000);
   },
   'click .close'(event)
   {
     document.querySelector('dialog').close();
   },
-});
-
-
-$(document).ready(function(){
-  $('#date-container .input-daterange').datepicker({
-    startDate: "today",
-    autoclose: true,
-    todayHighlight: true
-  });
-
 });
