@@ -7,6 +7,54 @@ body {
   background-image: linear-gradient(to bottom, #315481, #918e82 100%);
   overflow: hidden;
 }
+
+
+div.time-box {
+  background-color: #D8E0E8;
+  padding: 0px;
+  margin: 8px;
+  border-radius: 8px;
+
+  cursor: default;
+	user-drag: none;
+	user-select: none;
+	-moz-user-select: none;
+	-webkit-user-drag: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+}
+.line:hover {
+	z-index: 1;
+}
+.time-text-container {
+	height: 3rem;
+  font-size: 1rem;
+	background-color: #711A57;
+	display: inline-block;
+	padding: 4px;
+	border: 2px solid #2A2;
+	border-radius: 4px;
+	color: #eee;
+	text-shadow: 2px 2px 2px #000;
+	box-shadow: 1px 1px 5px 0px #000;
+}
+.line {
+  height: 192px;
+	width: 2px;
+	background-color: #111;
+	position: absolute;
+	
+	box-shadow: 1px 1px 10px -1px #000;
+
+}
+.good {
+  background-color: #2a2;
+}
+.bad {
+	background-color: #a22;
+}
+
+
 .create-area {
 
   width: 512px;
@@ -46,12 +94,12 @@ form {
 .full-width.mdl-card {
   width: 90%;
 }
-div.time-box {
-  background-color: #D8E0E8;
-  padding: 0px;
-  margin: 8px;
-  border-radius: 8px;
-}
+
+
+
+
+
+
 .mdl-layout__content {
   width: 100%;
 }
