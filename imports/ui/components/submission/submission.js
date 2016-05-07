@@ -6,6 +6,7 @@ import './submission.html';
 times = [];
 var time;
 var timeIndex;
+var tempTimeIndex;
 var timeList;
 
 Template.submission.onCreated(function bodyOnCreated() {
@@ -22,8 +23,8 @@ Template.submission.events({
       time = event.target;
       //var date = time.previousElementSibling.textContent.trim();
 
-      timeIndex = getChildIndex(time);
-      console.info(timeIndex);
+      tempTimeIndex = getChildIndex(time);
+      console.info(tempTimeIndex);
     }
 
     drawline(event);
@@ -131,6 +132,8 @@ function drawline(event)
 			holding = false;
 		}
 		startX = event.clientX;
+    timeIndex = tempTimeIndex;
+    console.info(timeIndex);
 	}
 	return false;
 }
@@ -169,9 +172,8 @@ function overlap(div1, div2)
       timeList.removeTime(timeIndex, div1);
 			success = true;
 		}
-		else if(rect1.left <= rect2.left)	// div2 overlaps div1 on div1's right side
+		else if(rect1.left < rect2.left)	// div2 overlaps div1 on div1's right side
 		{
-			console.error(rect1.left == rect2.left);
 			timeList.removeTime(timeIndex, div2);
       timeList.removeTime(timeIndex, div1);
 
@@ -192,6 +194,18 @@ function overlap(div1, div2)
       timeList.addTime(timeIndex, div2);
 			success = true;
 		}
+    else if(rect1.left === rect2.left)
+    {
+      if(rect1.width >= rect2.width) {
+        timeList.removeTime(timeIndex, div2);
+        div2.remove();
+      }
+      else {
+        timeList.removeTime(timeIndex, div1);
+        div1.remove();
+      }
+      success = true;
+    }
 	}
 	return success;
 }

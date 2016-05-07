@@ -39,11 +39,11 @@ div.time-box {
 	box-shadow: 1px 1px 5px 0px #000;
 }
 .line {
-  height: 192px;
+  height: 135px;
 	width: 2px;
 	background-color: #111;
 	position: absolute;
-	
+
 	box-shadow: 1px 1px 10px -1px #000;
 
 }
