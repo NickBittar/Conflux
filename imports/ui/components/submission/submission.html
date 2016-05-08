@@ -1,7 +1,11 @@
 <template name="submission">
   <div class="submission-page">
   <div class="floating-submit-button">
-    <button class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label submit-name-area">
+      <input id="name" class="mdl-textfield__input submit-name" type="text" name="name">
+      <label class="mdl-textfield__label submit-name-label" for="name">Name</label>
+    </div>
+    <button class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored submission-button">
       <i class="material-icons">add</i>
     </button>
   </div>
@@ -23,12 +27,6 @@
         {{ /each }}
       </tbody>
     </table>
-    <div class="centered">
-      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <input id="name" class="mdl-textfield__input" type="text" name="name">
-        <label class="mdl-textfield__label" for="name">Name</label>
-      </div>
-    </div>
     <div id="day-list">
       {{ #each day }}
         <div class="demo-card-image mdl-card mdl-shadow--2dp spaced full-width centered day-card">
@@ -37,6 +35,14 @@
           </div>
           <div class="time-box-container">
             <div class="mdl-card__title mdl-card--expand time-box"></div>
+            <div class="hours-container">
+            <ul class="hour-ticks">
+              <li>12<br>AM</li><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li>
+              <li>6</li><li>7</li><li>8</li><li>9</li><li>10</li><li>11</li>
+              <li>12<br>PM</li><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li>
+              <li>6</li><li>7</li><li>8</li><li>9</li><li>10</li><li>11</li>
+            </ul>
+          </div>
           </div>
         </div>
       {{ /each}}
