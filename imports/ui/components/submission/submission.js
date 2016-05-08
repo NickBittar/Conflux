@@ -61,12 +61,12 @@ Template.submission.helpers({
 
 
 class TimeList {
-  constructor(startDate) {
+  function constructor(startDate) {
     this.days = [];
     this.startDate = startDate; //This is a String, not a Date object
   }
 
-  addTime(dayIndex, time)
+  function addTime(dayIndex, time)
   {
     // If there is no data for that day, create it
     if(this.days[dayIndex] === undefined)
@@ -76,7 +76,7 @@ class TimeList {
     this.days[dayIndex].push(time);
   }
 
-  removeTime(dayIndex, time)
+  function removeTime(dayIndex, time)
   {
     let timeIndex = this.days[dayIndex].indexOf(time);
     if(timeIndex === -1)
@@ -86,12 +86,12 @@ class TimeList {
     this.days[dayIndex].splice(timeIndex, 1);
   }
 
-  getTimes(dayIndex)
+  function getTimes(dayIndex)
   {
     return this.days[dayIndex];
   }
 
-  export() {
+  function export() {
     let currDay;
     let data = { name: 'Nick', times: [], };
     const dayList = $('#day-list')[0];
@@ -117,10 +117,11 @@ class TimeList {
         data.times.push(newData);
       }
     }
+    console.info('Export Finished.');
     return data;
   }
 
-  import(data)
+  function import(data)
   {
     this.startDate = $('#start-date').text();
     const dayList = $('#day-list')[0];
@@ -158,7 +159,7 @@ class TimeList {
     console.info('Import finished.');
   }
 
-  getMinutes(div)
+  function getMinutes(div)
   {
     let space = $('.time-box')[0].getBoundingClientRect();
   	let rect = div.getBoundingClientRect();	// the div's rectangle position
@@ -184,7 +185,7 @@ class TimeList {
     // To fix the end of the day being 12:00PM when it should be 11:59PM
     if(l === w) { timeStart -= 1; }
     if(r === w) { timeEnd -= 1; }
-    console.info(timeEnd);
+
     return [timeStart, timeEnd];
   }
 }
