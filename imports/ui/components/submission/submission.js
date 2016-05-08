@@ -61,12 +61,12 @@ Template.submission.helpers({
 
 
 class TimeList {
-  function constructor(startDate) {
+  constructor(startDate) {
     this.days = [];
     this.startDate = startDate; //This is a String, not a Date object
   }
 
-  function addTime(dayIndex, time)
+  addTime(dayIndex, time)
   {
     // If there is no data for that day, create it
     if(this.days[dayIndex] === undefined)
@@ -76,7 +76,7 @@ class TimeList {
     this.days[dayIndex].push(time);
   }
 
-  function removeTime(dayIndex, time)
+  removeTime(dayIndex, time)
   {
     let timeIndex = this.days[dayIndex].indexOf(time);
     if(timeIndex === -1)
@@ -86,12 +86,12 @@ class TimeList {
     this.days[dayIndex].splice(timeIndex, 1);
   }
 
-  function getTimes(dayIndex)
+  getTimes(dayIndex)
   {
     return this.days[dayIndex];
   }
 
-  function export() {
+  export() {
     let currDay;
     let data = { name: 'Nick', times: [], };
     const dayList = $('#day-list')[0];
@@ -112,7 +112,7 @@ class TimeList {
         startTime.setMinutes(startMin);
         endTime.setMinutes(endMin);
 
-        let newData = {start: startTime, end: endTime, check: 'hi',};
+        let newData = {start: startTime, end: endTime,};
 
         data.times.push(newData);
       }
@@ -121,7 +121,7 @@ class TimeList {
     return data;
   }
 
-  function import(data)
+  import(data)
   {
     this.startDate = $('#start-date').text();
     const dayList = $('#day-list')[0];
@@ -159,7 +159,7 @@ class TimeList {
     console.info('Import finished.');
   }
 
-  function getMinutes(div)
+  getMinutes(div)
   {
     let space = $('.time-box')[0].getBoundingClientRect();
   	let rect = div.getBoundingClientRect();	// the div's rectangle position
