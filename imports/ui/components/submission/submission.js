@@ -16,13 +16,13 @@ var time,
 
 Template.submission.onCreated(function bodyOnCreated() {
   Meteor.subscribe('events');
-  console.log('submission templated loaded for id: ' + FlowRouter.getParam("eventId"));
+  console.log('submission templated loaded for id: ' + FlowRouter.getParam('eventId'));
   timeList = new TimeList();
 });
 
 Template.submission.events({
   'mousemove .time-box'(event, target) {
-    if(event.target.classList.contains('time-box') && time != event.target)
+    if(event.target.classList.contains('time-box') && time !== event.target)
     {
       time = event.target;
 
@@ -37,14 +37,14 @@ Template.submission.events({
 
 Template.submission.helpers({
   'event': function() {
-    return Events.find({ _id: FlowRouter.getParam("eventId") } );
+    return Events.find({ _id: FlowRouter.getParam('eventId') } );
   },
   'formatDate': function(date) {
     return new Date(date).toDateString();
   },
   'day': function() {
-    const eventId = FlowRouter.getParam("eventId");
-    if (Events.find({ _id: eventId } ).count() == 0) {
+    const eventId = FlowRouter.getParam('eventId');
+    if (Events.find({ _id: eventId } ).count() === 0) {
       return [];
     }
     const endDate = Events.findOne({ _id: eventId } ).endDate;
@@ -93,7 +93,7 @@ class TimeList {
 
   export() {
     let currDay;
-    let data = { name: "Nick", times: [], };
+    let data = { name: 'Nick', times: [], };
     const dayList = $('#day-list')[0];
 
     for(i in this.days)  // For each day
@@ -145,10 +145,10 @@ class TimeList {
       startTime = startTime.getHours()*60 + startTime.getMinutes();
       endTime = endTime.getHours()*60 + endTime.getMinutes();
 
-      let div = document.createElement("div");
-      div.className = "line good";
-      div.style.left = (startTime/minutesInDay)*100 + "%";
-      div.style.width = ((endTime-startTime)/minutesInDay)*100 + "%";
+      let div = document.createElement('div');
+      div.className = 'line good';
+      div.style.left = (startTime/minutesInDay)*100 + '%';
+      div.style.width = ((endTime-startTime)/minutesInDay)*100 + '%';
       this.addTime(dayIndex, div);
 
       dayElements[dayIndex].appendChild(div);
@@ -194,19 +194,19 @@ class TimeList {
 
 function drawline(event)
 {
-	if(event.buttons == 1 || event.buttons == 4)
+	if(event.buttons === 1 || event.buttons === 4)
 	{
 		if(!holding)
 		{
-			if(div != null)
+			if(div !== null)
 			{
         timeList.addTime(timeIndex, div);
 			}
-			div = document.createElement("div");
-			if(event.buttons == 1) {
-				div.className = "line good";
-			} else if (event.buttons == 4) {
-				div.className = "line bad";
+			div = document.createElement('div');
+			if(event.buttons === 1) {
+				div.className = 'line good';
+			} else if (event.buttons === 4) {
+				div.className = 'line bad';
 				event.preventDefault();
 			}
 
@@ -215,18 +215,18 @@ function drawline(event)
 		}
 		diff = event.clientX-startX;
     let rect = time.getBoundingClientRect();
-		div.style.width = Math.abs(diff/rect.width)*100 + "%";
+		div.style.width = Math.abs(diff/rect.width)*100 + '%';
 		if(diff < 0)
 		{
-			div.style.left = ((event.clientX-rect.left)/rect.width)*100 + "%";
+			div.style.left = ((event.clientX-rect.left)/rect.width)*100 + '%';
 		} else {
-			div.style.left = ((event.clientX-rect.left-diff)/rect.width)*100 + "%";
+			div.style.left = ((event.clientX-rect.left-diff)/rect.width)*100 + '%';
 		}
 		getTime(div);
 	}
 	else
 	{
-		if(holding == true)
+		if(holding === true)
 		{
       timeList.addTime(timeIndex, div);
 			div = null;
@@ -246,7 +246,7 @@ let times = timeList.getTimes(timeIndex);
 	{
 		for(let j = 0; j < times.length; j++)
 		{
-			if (i != j) {
+			if (i !== j) {
 				if (overlap(times[i], times[j])) {
 					i = 0;
 					j = 0;
@@ -279,7 +279,7 @@ function overlap(div1, div2)
 			timeList.removeTime(timeIndex, div2);
       timeList.removeTime(timeIndex, div1);
 
-			div1.style.width = ((rect2.width+rect2.left - rect1.left)/time.clientWidth)*100 + "%";
+			div1.style.width = ((rect2.width+rect2.left - rect1.left)/time.clientWidth)*100 + '%';
 			div2.remove();
 
       timeList.addTime(timeIndex, div1);
@@ -290,7 +290,7 @@ function overlap(div1, div2)
       timeList.removeTime(timeIndex, div2);
       timeList.removeTime(timeIndex, div1);
 
-			div2.style.width = ((rect1.width+rect1.left - rect2.left)/time.clientWidth)*100 + "%";
+			div2.style.width = ((rect1.width+rect1.left - rect2.left)/time.clientWidth)*100 + '%';
 			div1.remove();
 
       timeList.addTime(timeIndex, div2);
@@ -344,9 +344,9 @@ function getTime(div)
 
 
 	/* Calculate time on left side of time block */
-	let suffix = "AM";
+	let suffix = 'AM';
 	if(rl >= 0.5) {
-		suffix = "PM";
+		suffix = 'PM';
 	}
 	let hr = Math.floor(rl*24)%12;
 	if(hr == 0)
@@ -358,12 +358,12 @@ function getTime(div)
 	{
 		min = '0' + min;
 	}
-	timeStart = hr + ":" + min + suffix;
+	timeStart = hr + ':' + min + suffix;
 
 	/* Calculate time on right side of time block */
-	suffix = "AM";
+	suffix = 'AM';
 	if(rr >= 0.5) {
-		suffix = "PM"
+		suffix = 'PM'
 	}
 	hr = Math.floor(rr*24)%12;
 	if(hr == 0)
@@ -375,15 +375,15 @@ function getTime(div)
 	{
 		min = '0' + min;
 	}
-	timeEnd = hr + ":" + min + suffix;
+	timeEnd = hr + ':' + min + suffix;
 
 	/* Post processing */
-  if(l >= w) { timeStart = "11:59PM"; }
-	if(r >= w) { timeEnd = "11:59PM"; }
+  if(l >= w) { timeStart = '11:59PM'; }
+	if(r >= w) { timeEnd = '11:59PM'; }
 
 	// Create div to contain the times
-	let timeDiv = document.createElement("div");
-	timeDiv.className = "time-text-container";
+	let timeDiv = document.createElement('div');
+	timeDiv.className = 'time-text-container';
 	timeDiv.innerHTML = `${timeStart}<br>${timeEnd}`;
 	// Remove all children from time block to cleanly add the new time text
 	while(div.firstChild)
