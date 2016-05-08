@@ -119,7 +119,7 @@ class TimeList {
     let dayElements = [];
     for(let i = 0; i < dayCount; i += 1)
     {
-      dayElements[i] = dayList.children[i].lastElementChild;
+      dayElements[i] = dayList.children[i].lastElementChild.firstChild;
     }
     const times = data.times;
     const minutesInDay = 60*24;
@@ -141,7 +141,8 @@ class TimeList {
 
       daysElements[i].appendChild(div);
     }
-
+    updateAllTimes();
+    console.info('Import finished.');
   }
 
   getMinutes(div)
@@ -200,9 +201,9 @@ function drawline(event)
 		div.style.width = Math.abs(diff) + "px";
 		if(diff < 0)
 		{
-			div.style.left = event.clientX-rect.left + "px";
+			div.style.left = (event.clientX-rect.left+8) + "px";
 		} else {
-			div.style.left = (event.clientX-diff-rect.left) + "px";
+			div.style.left = (event.clientX-diff-rect.left+8) + "px";
 		}
 		getTime(div);
 	}
@@ -314,8 +315,8 @@ function getTime(div)
 	//Fix edge case errors that result in -1:58AM on the left and 12:01PM on right
 	if(l < 0) { l = 0; }
   if(r < 0) { r = 0; }
-	if(r > space.width) { r = space.width; }
-  if(l > space.width) { l = space.width; }
+	if(r > w) { r = w; }
+  if(l > w) { l = w; }
 
 	/* Set Ratios */
 	let rl = l/w;						// Ratio of left-side of div to screen width
@@ -372,7 +373,7 @@ function getTime(div)
 }
 function getChildIndex(time)
 {
-  let child = time.parentNode;
+  let child = time.parentNode.parentNode;
   let parent = child.parentNode;
   timeIndex = Array.prototype.indexOf.call(parent.children, child);
   return timeIndex;

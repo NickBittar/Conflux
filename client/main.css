@@ -12,7 +12,6 @@ body {
 div.time-box {
   background-color: #D8E0E8;
   padding: 0px;
-  margin: 8px;
   border-radius: 8px;
 
   cursor: default;
@@ -22,6 +21,12 @@ div.time-box {
 	-webkit-user-drag: none;
 	-webkit-user-select: none;
 	-ms-user-select: none;
+}
+div.time-box-container {
+  display: flex;
+  flex-grow: 1;
+  -webkit-flex-grow: 1;
+  margin: 8px;
 }
 .line:hover {
 	z-index: 1;
