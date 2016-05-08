@@ -3,11 +3,16 @@ import { Template } from 'meteor/templating';
 import { Events } from '/imports/api/events.js';
 import './submission.html';
 
-times = [];
-var time;
-var timeIndex;
-var tempTimeIndex;
-var timeList;
+/* GLOBALS */
+var time,
+  timeIndex,
+  tempTimeIndex,
+  timeList,
+  div = null,
+  startX,
+  diff,
+  holding = false;
+/* End GLOBALS */
 
 Template.submission.onCreated(function bodyOnCreated() {
   Meteor.subscribe('events');
@@ -87,17 +92,17 @@ class TimeList {
   }
 
   export() {
-    this.startDate = $('#start-date').text();
-    let start = new Date(this.startDate);
-    let currDay = new Date(this.startDate);
+    let currDay;
     let data = { name: "Nick", times: [], };
+    const dayList = $('#day-list')[0];
+
     for(i in this.days)  // For each day
     {
       // Sets the current day to correct day based on the index of the array we are at
-      currDay.setDate(start.getDate()+parseInt(i));
+      currDay = new Date(dayList.children[i].firstElementChild.innerText);
 
       // Goes through each time in the current day
-      for(j in this.days[i])
+      for(j in this.days[i])  // For each time block in the day
       {
         let [startMin, endMin] = this.getMinutes(this.days[i][j]);
 
@@ -186,9 +191,7 @@ class TimeList {
 
 
 
-div = null;
-var startX, diff;
-var holding = false;
+
 function drawline(event)
 {
 	if(event.buttons == 1 || event.buttons == 4)
