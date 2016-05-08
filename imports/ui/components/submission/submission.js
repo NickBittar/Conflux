@@ -12,7 +12,7 @@ var timeList;
 Template.submission.onCreated(function bodyOnCreated() {
   Meteor.subscribe('events');
   console.log('submission templated loaded for id: ' + FlowRouter.getParam("eventId"));
-  timeList = new TimeList();
+  timeList = new TimeList($('#start-date').text());
 });
 
 Template.submission.events({
@@ -56,8 +56,9 @@ Template.submission.helpers({
 
 
 class TimeList {
-  constructor() {
+  constructor(startDate) {
     this.days = [];
+    this.startDate = startDate; //This is a String, not a Date object
   }
 
   addTime(dayIndex, time)
@@ -83,6 +84,90 @@ class TimeList {
   getTimes(dayIndex)
   {
     return this.days[dayIndex];
+  }
+
+  export() {
+    let start = new Date(this.startDate);
+    let currDay = new Date(this.startDate);
+    let data = { name: "Nick", times: [], };
+    for(i in days)  // For each day
+    {
+      // Sets the current day to correct day based on the index of the array we are at
+      currDay.setDate(start.getDate()+i);
+
+      // Goes through each time in the current day
+      for(j in days[i])
+      {
+        let [startMin, endMin] = getMinutes(days[i][j]);
+        let startTime = new Date(currDay.getTime()),
+            endTime   = new Date(currDay.getTime());
+        startTime.setMinutes(startMin);
+        endTime.setMinutes(endMin);
+
+        let newData = {start: startTime, end: endTime,};
+
+        times.push(newData);
+      }
+    }
+    return data;
+  }
+
+  import(data)
+  {
+    const dayList = $('#day-list')[0];
+    const dayCount = dayList.children.length;
+    let dayElements = [];
+    for(let i = 0; i < dayCount; i += 1)
+    {
+      dayElements[i] = dayList.children[i].lastElementChild;
+    }
+    const times = data.times;
+    const minutesInDay = 60*24;
+    const dayWidth = dayElements[i].clientWidth;
+    for(let i = 0; i < times.length; i += 1)
+    {
+      if(times[i] === undefined) { continue; }
+
+      let startTime = times[i].start;
+      let endTime = times[i].end;
+      startTime = startTime.getUTCHours()*60 + startTime.getUTCMinutes();
+      endTime = endTime.getUTCHours()*60 + endTime.getUTCMinutes();
+
+      let div = document.createElement("div");
+      div.className = "line good";
+      div.style.left = (startTime/minutesInDay)*dayWidth + "px";
+      div.style.width = ((endTime-startTime)/minutesInDay)*dayWidth + "px";
+      this.addTime(div);
+
+      daysElements[i].appendChild(div);
+    }
+
+  }
+
+  getMinutes(div)
+  {
+    let space = $('.time-box')[0].getBoundingClientRect();
+  	let rect = div.getBoundingClientRect();	// the div's rectangle position
+  	let timeStart, timeEnd;	// Will hold the time in minutes
+  	let l = rect.left-space.left;			// left side of div to left side of screen
+  	let r = rect.right-space.left;			// right side of div to left side of screen
+  	let w = $('.time-box')[0].clientWidth;	// screen width
+
+  	//Fix edge case errors that result in -1:58AM on the left and 12:01PM on right
+  	if(l < 0) { l = 0; }
+    if(r < 0) { r = 0; }
+  	if(r > space.width) { r = space.width; }
+    if(l > space.width) { l = space.width; }
+
+  	/* Set Ratios */
+  	let rl = l/w;						// Ratio of left-side of div to screen width
+  	let rr = r/w;						// Ratio of right-side of div to screen width
+
+    const minutesInDay = 24 * 60;
+    timeStart = rl * minutesInDay;
+    timeEnd = rr * minutesInDay;
+
+    return [timeStart, timeEnd];
   }
 }
 
@@ -228,7 +313,9 @@ function getTime(div)
 
 	//Fix edge case errors that result in -1:58AM on the left and 12:01PM on right
 	if(l < 0) { l = 0; }
+  if(r < 0) { r = 0; }
 	if(r > space.width) { r = space.width; }
+  if(l > space.width) { l = space.width; }
 
 	/* Set Ratios */
 	let rl = l/w;						// Ratio of left-side of div to screen width
