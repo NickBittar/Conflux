@@ -37,7 +37,7 @@ Meteor.methods({
     Events.remove(eventId);
   },
   'events.find'(eventId) {
-    const event = Events.findOne(eventId);
+    const event = Events.findOne( { _id: eventId } );
 
     return event;
   },

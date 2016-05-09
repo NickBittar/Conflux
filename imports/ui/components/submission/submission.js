@@ -13,12 +13,14 @@ var time,
   div = null,
   startX,
   diff,
-  holding = false;
+  holding = false,
+  eventId;
 /* End GLOBALS */
 
 Template.submission.onCreated(function bodyOnCreated() {
   Meteor.subscribe('events');
   console.log('submission templated loaded for id: ' + FlowRouter.getParam('eventId'));
+  eventId = FlowRouter.getParam('eventId');
   timeList = new TimeList();
 });
 
@@ -40,21 +42,23 @@ Template.submission.events({
       alert("NEED A NAME!");
       return false;
     }
-    let JSONexport = timeList.export(name);
+    let JSONexport = timeList.export(eventId, name);
     console.info(JSONexport);
+
+    Events.update({_id: eventId}, { $push: { submissions: JSONexport } });
     return JSONexport;
   },
 });
 
 Template.submission.helpers({
   'event': function() {
-    return Events.find({ _id: FlowRouter.getParam('eventId') } );
+    return Events.find({ _id: eventId } );
   },
   'formatDate': function(date) {
     return new Date(date).toDateString();
   },
   'day': function() {
-    const eventId = FlowRouter.getParam('eventId');
+
     if (Events.find({ _id: eventId } ).count() === 0) {
       return [];
     }
