@@ -1,4 +1,5 @@
 <template name="create">
+  {{ > navbar }}
   <div class="create-area">
       <div class="demo-card-wide mdl-card mdl-shadow--2dp">
         <div class="mdl-card__title">
@@ -19,7 +20,7 @@
                 </div>
               </div>
               <br>
-              <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label password-field">
                 <input id="password" class="mdl-textfield__input" type="password" name="password">
                 <label class="mdl-textfield__label" for="password">Password (optional)</label>
               </div>
@@ -31,6 +32,9 @@
 
       </div>
     </div>
+    <div class="create-filler">
+    </div>
+    {{ > footer }}
       <div id="demo-toast-example" class="mdl-js-snackbar mdl-snackbar">
         <div class="mdl-snackbar__text"></div>
         <button class="mdl-snackbar__action" type="button"></button>

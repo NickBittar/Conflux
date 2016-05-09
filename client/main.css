@@ -113,7 +113,11 @@ button.submission-button {
 .create-area {
 
   width: 512px;
-  margin: 10% auto;
+  margin: 5vh auto;
+  height: 57vh;
+}
+.create-filler {
+  height: calc(33vh - 164px);
 }
 .demo-card-wide.mdl-card {
   width: 512px;
@@ -195,9 +199,10 @@ label.mdl-textfield__label:after {
 .mdl-mini-footer {
   bottom: 0px;
   width: 100vw;
-  position: absolute;
 }
-
+div.password-field {
+  display: none;
+}
 @media screen and (max-width: 512px) {
   .demo-card-wide.mdl-card {
     top: 0px;
@@ -206,6 +211,11 @@ label.mdl-textfield__label:after {
   }
   .create-area {
     width: 100vw;
+    margin: 0;
+  }
+  .create-filler {
+
+    min-height: 43vh;
   }
   form {
     width: 100%;
@@ -220,6 +230,17 @@ label.mdl-textfield__label:after {
   .mdl-dialog__content {
     padding: 24px 0;
   }
-
-
+}
+@media screen and (max-width: 1024px) {
+  header.mdl-layout__header {
+    display: flex;
+  }
+  .create-filler {
+    height: calc(33vh - 156px);
+  }
+}
+@media screen and (max-width: 760px) {
+  .create-filler {
+    height: calc(33vh - 196px);
+  }
 }
