@@ -4,6 +4,7 @@ import { Events } from '/imports/api/events.js';
 import './results.html';
 
 var personList = []; // Aray where Index is submission ID, inside of each index is an array of days and times
+var dayList = [];
 var eventId;
 var startDate;
 var timeList;
@@ -66,17 +67,155 @@ function init(submissions)
     let timeList = new TimeList(startDate);
     timeList.import(submissions[i]);
     personList.push(timeList);
-    /*
-    for(let j = 0; j < submissions[i].times.length; j += 1)// For each datetime range in that submission
+    addPersonsTimes(submissions[i].times);
+  }
+
+  groovyTimes();
+  drawGoodTimes();
+}
+
+function addPersonsTimes(times)
+{
+  for(let i = 0; i < times.length; i += 1)
+  {
+    //let dayIndex = Math.ceil((new Date(times[i].start).getTime() - startDate.getTime())/(1000*60*60*24));
+    let dayIndex = Math.floor(daysBetween(startDate, times[i].start));
+
+    if(dayList[dayIndex] === undefined)
     {
-      let time = submissions[i].times[j];
-      console.info(time.start + " through " + time.end);
+      dayList[dayIndex] = [];
     }
-    */
+
+    dayList[dayIndex].push( { time: times[i].start, val: 1 } );
+		dayList[dayIndex].push( { time: times[i].end, val: -1 } );
   }
 }
 
+function treatAsUTC(date) {
+    let result = new Date(date);
+    result.setMinutes(result.getMinutes() - result.getTimezoneOffset());
+    return result;
+}
 
+function daysBetween(startDate, endDate) {
+    let millisecondsPerDay = 24 * 60 * 60 * 1000;
+    return (treatAsUTC(endDate) - treatAsUTC(startDate)) / millisecondsPerDay;
+}
+
+function groovyTimes()
+{
+
+  for(let day = 0; day < dayList.length; day += 1)
+  {
+    if(dayList[day] === undefined) { continue; }
+    let currDay = new Date(startDate);
+    currDay.setDate(currDay.getDate()+day);
+
+  	let t = dayList[day];
+
+  	t.sort(function(a, b) {
+  		a = new Date(a.time).getTime();
+  		b = new Date(b.time).getTime();
+  		return a - b;
+  	});
+
+  	let cool = [];
+  	cool.push({time: new Date(currDay), chill: 0});
+  	let hot = 0;
+
+  	for(let i = 0; i < t.length; i += 1)
+  	{
+  		hot += t[i].val;
+  		cool.push({time: t[i].time, chill: hot});
+  	}
+  	// set currday for the last possible ms of the day
+    // Basically, add a day minus 1ms
+    currDay.setMilliseconds(1000*60*60*24 - 1); //1000ms * 60s * 60m * 24h - 1ms
+  	cool.push({time: new Date(currDay), chill: 0}); // The 'chill: 0' is uneccessary
+    dayList[day] = cool;
+  }
+
+}
+
+function drawGoodTimes()
+{
+  let dayElements = [];
+
+  for(let i = 0; i < dayList.length; i += 1)
+  {
+    dayElements[i] = $('#day-list')[0].children[i].lastElementChild.firstElementChild;
+  }
+  for(let day = 0; day < dayList.length; day += 1)
+  {
+    if(dayList[day] === undefined) { continue; }
+
+  	let t = dayList[day];
+    console.log('%c ' + day, 'background: #222; color: #d33');
+    for(let i = 0; i < t.length-1; i += 1)
+    {
+      if(t[i] === undefined) { continue; }
+
+      let time1 = t[i].time,
+          time2 = t[i+1].time;
+      let h1 = time1.getHours(),
+          m1 = time1.getMinutes(),
+          h2 = time2.getHours(),
+          m2 = time2.getMinutes();
+
+      let start = h1*60+m1;
+      let duration = (h2*60+m2) - start;
+
+      console.log('%c ' + h1 + ':' + m1, 'background: #444; color: #bada55');
+      console.log('%c ' + t[i].chill, 'background: #ddd; color: #333');
+
+      let minutesInDay = 60*24;
+
+      let div = document.createElement("div");
+      div.className = 'line interval';
+      div.style.left = ((start)/minutesInDay)*100 + '%';
+      div.style.width = ((duration)/minutesInDay)*100 + '%';
+
+
+      let min=0, max=3;
+      let normalizedChill = (t[i].chill - min)/(max-min);
+      div.innerText = t[i].chill + "(" + normalizedChill + ")";
+      let color = getHeatMapColor(normalizedChill);
+      console.info(color);
+      div.style.backgroundColor = color;
+      dayElements[day].appendChild(div);
+    }
+  }
+}
+
+function getHeatMapColor(value)
+{
+  const color = [ [1,0,0], [1,0.75,0], [0.75,1,0], [0,1,0] ];
+  const NUM_COLORS = color.length;
+
+  let idx1;        // |-- Our desired color will be between these two indexes in "color".
+  let idx2;        // |
+  let fractBetween = 0;  // Fraction between "idx1" and "idx2" where our value is.
+
+  if(value <= 0)      {  idx1 = idx2 = 0;            }    // accounts for an input <=0
+  else if(value >= 1)  {  idx1 = idx2 = NUM_COLORS-1; }    // accounts for an input >=0
+  else
+  {
+    value = value * (NUM_COLORS-1);        // Will multiply value by 3.
+    idx1  = Math.floor(value);                  // Our desired color will be after this index.
+    idx2  = idx1+1;                        // ... and before this index (inclusive).
+    fractBetween = value - idx1;    // Distance between the two indexes (0-1).
+  }
+
+  red   = (color[idx2][0] - color[idx1][0])*fractBetween + color[idx1][0];
+  green = (color[idx2][1] - color[idx1][1])*fractBetween + color[idx1][1];
+  blue  = (color[idx2][2] - color[idx1][2])*fractBetween + color[idx1][2];
+
+  red *= 255;
+  green *= 255;
+  blue *= 255;
+
+  return `rgb(${~~red}, ${~~green}, ${~~blue})`;
+}
 function updateAllTimes(dayIndex)
 {
   if(dayIndex === undefined)
