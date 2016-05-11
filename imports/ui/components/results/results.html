@@ -6,6 +6,8 @@
       }
     </style>
     <div class="submission-page">
+      <button id="clear" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Destroy</button>
+      <button id="refresh" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Refresh</button>
       <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp centered">
         <thead>
           <tr>
@@ -24,8 +26,8 @@
           {{ /each }}
         </tbody>
       </table>
-      <div class="submitter-info demo-card-wide mdl-card mdl-shadow--2dp centered">
-        <h4>Submissions from</h4>
+        <div class="submitter-info demo-card-wide mdl-card mdl-shadow--2dp centered">
+        <h4>Submissions (<span id="number-of-submissions"> </span>)</h4>
         <ul class="demo-list-item mdl-list">
           {{ #each event }}
             {{ #each submissions }}

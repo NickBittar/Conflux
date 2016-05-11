@@ -4,41 +4,40 @@ import { Events } from '/imports/api/events.js';
 import './results.html';
 
 var personList = []; // Aray where Index is submission ID, inside of each index is an array of days and times
-var dayList = [];
-var eventId;
-var startDate;
+var dayList = [];   // Used for adding times and their vals (1 or -1) for making the heat map intervals
+var heatMapList = []; // The divs comprising the heat maps
+var eventId;  // The mongoID for this event
+var startDate;  // The startDate for this event
+var endDate;  // the endDate for this event
 var timeList;
 var timeIndex;
-var submissionCount;
+var submissionCount;  // The number of submissions for this event (used for coloring the heatmap)
+var numberOfDays; // The number of days in this event
+var eventJSON;  // This event's raw JSON from the database.
+var currentState = 0; // 0 for empty, -1 for working, 1 for loaded
+
+var debugVar = 0;
 
 Template.results.onCreated(function bodyOnCreated() {
   Meteor.subscribe('events');
 
   eventId = FlowRouter.getParam('eventId');
-  console.log('results templated loaded for id: ' + eventId);
-
-
+  console.info('results templated loaded for id: ' + eventId);
 });
 
-Template.results.rendered=function() {
+Template.results.onRendered(function() {
+  refreshData();
+  eventLoop();
+});
 
-  setTimeout(function() {
-    Meteor.call('events.find', eventId, function(error, result){
-      if(error)
-      {
-        console.error(error);
-      }
-      else {
-        console.info(result);
-        startDate = result.startDate;
-        init(result.submissions);
-      }
-    });
-  }, 1000);
-
-}
-
-
+Template.results.events({
+  'click #clear'(event, target) {
+    destroyData();
+  },
+  'click #refresh'(event, target) {
+    refreshData();
+  },
+});
 
 Template.results.helpers({
   'event': function() {
@@ -59,15 +58,22 @@ Template.results.helpers({
     }
     return days;
   },
-  /*
-  'submitter': function() {
-    return Events.findOne({ _id: eventId } ).submissions;
-  },*/
 });
 
-function init(submissions)
+
+function init()
 {
-  for(let i = 0; i < submissions.length; i += 1)  // For each submission
+  submissions = eventJSON.submissions;
+
+  if (submissions === undefined) {
+    submissionCount = 0;
+  } else {
+    submissionCount = submissions.length;
+  }
+
+  $('#number-of-submissions').text(submissionCount);
+
+  for(let i = 0; i < submissionCount; i += 1)  // For each submission
   {
     let timeList = new TimeList(startDate);
     timeList.import(submissions[i]);
@@ -75,11 +81,80 @@ function init(submissions)
     addPersonsTimes(submissions[i].times);
   }
 
-  submissionCount = submissions.length;
-
   groovyTimes();
   drawGoodTimes();
+
+  currentState = 1;
 }
+
+function waitForLoading()
+{
+  // Waits for all day containers to be loaded
+  if($('#day-list').children().length < numberOfDays)
+  {
+    window.requestAnimationFrame(function() { waitForLoading(); });
+  } else {
+    init();
+  }
+}
+
+function eventLoop()
+{
+  console.debug("Checking for change");
+  if($('.submitter-name').size() !== submissionCount)
+  {
+
+    console.debug("found change, refreshing data");
+    destroyData();
+    refreshData();
+  }
+  setTimeout(eventLoop, 2000);
+}
+
+function destroyData()
+{
+  if(currentState != 1) {
+    console.warn(currentState + ": Cannot refresh right now.");
+    return false;
+  }
+  currentState = -1;
+  for(let i in personList)
+  {
+    personList[i].selfDestruct();
+  }
+  for(let i in heatMapList)
+  {
+    heatMapList[i].remove();
+  }
+  dayList = [];
+  currentState = 0;
+}
+function refreshData()
+{
+  if(currentState != 0) {
+    console.warn(currentState + ": Cannot refresh right now.");
+    return false;
+  }
+  currentState = -1;
+  Meteor.call('events.find', eventId, function(error, result){
+    if(error)
+    {
+      console.error(error);
+    }
+    else {
+      console.info(result);
+      startDate = result.startDate;
+      endDate = result.endDate;
+      numberOfDays = daysBetween(startDate, endDate)+1;
+      eventJSON = result;
+      // Wait for elements to load
+      waitForLoading();
+      //init(result.submissions);
+    }
+  });
+  currentState = 1;
+}
+
 
 function addPersonsTimes(times)
 {
@@ -152,12 +227,13 @@ function drawGoodTimes()
   {
     dayElements[i] = $('#day-list')[0].children[i].lastElementChild.firstElementChild;
   }
+
   for(let day = 0; day < dayList.length; day += 1)
   {
     if(dayList[day] === undefined) { continue; }
 
   	let t = dayList[day];
-    console.log('%c ' + day, 'background: #222; color: #d33');
+    //console.log('%c ' + day, 'background: #222; color: #d33');
     for(let i = 0; i < t.length-1; i += 1)
     {
       if(t[i] === undefined) { continue; }
@@ -172,8 +248,11 @@ function drawGoodTimes()
       let start = h1*60+m1;
       let duration = (h2*60+m2) - start;
 
-      console.log('%c ' + h1 + ':' + m1, 'background: #444; color: #bada55');
-      console.log('%c ' + t[i].chill, 'background: #ddd; color: #333');
+      // If the duration is 0, the width will be 0%, don't bother clogging up the DOM
+      if(duration === 0) { continue; }
+
+      //console.log('%c ' + h1 + ':' + m1, 'background: #444; color: #bada55');
+      //console.log('%c ' + t[i].chill, 'background: #ddd; color: #333');
 
       let minutesInDay = 60*24;
 
@@ -185,10 +264,11 @@ function drawGoodTimes()
 
       let min=0, max=submissionCount;
       let normalizedChill = (t[i].chill - min)/(max-min);
-      div.innerText = t[i].chill + "(" + normalizedChill + ")";
+      //div.innerText = t[i].chill + "(" + normalizedChill + ")";
       let color = getHeatMapColor(normalizedChill);
-      console.info(color);
+      //console.info(color);
       div.style.backgroundColor = color;
+      heatMapList.push(div);
       dayElements[day].appendChild(div);
     }
   }

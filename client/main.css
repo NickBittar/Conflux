@@ -1,10 +1,10 @@
 /* CSS declarations go here */
 body {
-
+  background: url('img/broken-noise.png');
 }
 #__blaze-root {
-  background-color: #315481;
-  background-image: linear-gradient(to bottom, #315481, #918e82 100%);
+  background-color: rgba(81, 103, 224, 0.33);
+  /*background-image: linear-gradient(to bottom, #315481, #918e82 100%);*/
   overflow: hidden;
 }
 .hour-ticks li {
