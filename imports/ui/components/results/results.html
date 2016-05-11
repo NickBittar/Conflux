@@ -1,5 +1,10 @@
 <template name="results">
     {{ > navbar }}
+    <style>
+      .good {
+        visibility: hidden;
+      }
+    </style>
     <div class="submission-page">
       <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp centered">
         <thead>
@@ -19,6 +24,20 @@
           {{ /each }}
         </tbody>
       </table>
+      <div class="submitter-info demo-card-wide mdl-card mdl-shadow--2dp centered">
+        <h4>Submissions from</h4>
+        <ul class="demo-list-item mdl-list">
+          {{ #each event }}
+            {{ #each submissions }}
+              <li class="mdl-list__item submitter-name">
+                <span class="mdl-list__item-primary-content">
+                  {{ name }}
+                </span>
+              </li>
+            {{ /each }}
+          {{ /each }}
+        </ul>
+      </div>
       <div id="day-list">
         {{ #each day }}
           <div class="demo-card-image mdl-card mdl-shadow--2dp spaced full-width centered day-card">

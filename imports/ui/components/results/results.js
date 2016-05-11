@@ -9,6 +9,7 @@ var eventId;
 var startDate;
 var timeList;
 var timeIndex;
+var submissionCount;
 
 Template.results.onCreated(function bodyOnCreated() {
   Meteor.subscribe('events');
@@ -58,6 +59,10 @@ Template.results.helpers({
     }
     return days;
   },
+  /*
+  'submitter': function() {
+    return Events.findOne({ _id: eventId } ).submissions;
+  },*/
 });
 
 function init(submissions)
@@ -69,6 +74,8 @@ function init(submissions)
     personList.push(timeList);
     addPersonsTimes(submissions[i].times);
   }
+
+  submissionCount = submissions.length;
 
   groovyTimes();
   drawGoodTimes();
@@ -176,7 +183,7 @@ function drawGoodTimes()
       div.style.width = ((duration)/minutesInDay)*100 + '%';
 
 
-      let min=0, max=3;
+      let min=0, max=submissionCount;
       let normalizedChill = (t[i].chill - min)/(max-min);
       div.innerText = t[i].chill + "(" + normalizedChill + ")";
       let color = getHeatMapColor(normalizedChill);
@@ -189,7 +196,7 @@ function drawGoodTimes()
 
 function getHeatMapColor(value)
 {
-  const color = [ [1,0,0], [1,0.75,0], [0.75,1,0], [0,1,0] ];
+  const color = [ [0.91, 0.30, 0.24], [0.90, 0.49, 0.13], [0.95, 0.77, 0.06], [0.18, 0.80, 0.44] ];
   const NUM_COLORS = color.length;
 
   let idx1;        // |-- Our desired color will be between these two indexes in "color".
