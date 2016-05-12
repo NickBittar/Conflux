@@ -8,24 +8,27 @@
     <div class="submission-page">
       <button id="clear" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Destroy</button>
       <button id="refresh" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Refresh</button>
-      <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp centered">
+      <div class="results-header">
+        <div class="header-table-wrapper">
+      <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp  results-info-table">
         <thead>
           <tr>
-            <th class="mdl-data-table__cell--non-numeric">Event Name</th>
-            <th>Start Date</th>
-            <th>End Date</th>
+            <th class="mdl-data-table__cell--non-numeric event-info">Event Name</th>
+            <th class="event-info">Start Date</th>
+            <th class="event-info">End Date</th>
           </tr>
         </thead>
         <tbody>
           {{ #each event }}
           <tr>
-            <td class="mdl-data-table__cell--non-numeric">{{ eventName }}</td>
-            <td id="start-date">{{ formatDate startDate }}</td>
-            <td>{{ formatDate endDate }}</td>
+            <td class="mdl-data-table__cell--non-numeric event-info">{{ eventName }}</td>
+            <td id="start-date" class="event-info">{{ formatDate startDate }}</td>
+            <td class="event-info">{{ formatDate endDate }}</td>
           </tr>
           {{ /each }}
         </tbody>
       </table>
+    </div>
         <div class="submitter-info demo-card-wide mdl-card mdl-shadow--2dp centered">
         <h4>Submissions (<span id="number-of-submissions"> </span>)</h4>
         <ul class="demo-list-item mdl-list">
@@ -40,6 +43,7 @@
           {{ /each }}
         </ul>
       </div>
+    </div>
       <div id="day-list">
         {{ #each day }}
           <div class="demo-card-image mdl-card mdl-shadow--2dp spaced full-width centered day-card">

@@ -3,7 +3,8 @@ body {
   background: url('img/broken-noise.png');
 }
 #__blaze-root {
-  background-color: rgba(81, 103, 224, 0.33);
+  background: linear-gradient(#3F51B5, #424242);
+  /*background-color: rgba(81, 103, 224, 0.33);*/
   /*background-image: linear-gradient(to bottom, #315481, #918e82 100%);*/
   overflow: hidden;
 }
@@ -13,7 +14,7 @@ body {
   margin: .64em -1em -.64em;
   text-align: center;
   position: relative;
-  text-shadow: 1px 1px hsl(60, 60%, 84%);
+  text-shadow: 1px 1px #E0E0E0;
 }
 .hour-ticks li:nth-child(even) {
   display: none;
@@ -96,6 +97,16 @@ div.time-box-container {
 	background-color: #a22;
 }
 
+.wide {
+  width: 90%;
+}
+.event-info {
+  font-size: 24px;
+}
+.day-date {
+  font-size: 24px;
+}
+
 div.submit-name-area {
   width: 150px;
 }
@@ -156,6 +167,11 @@ form {
   width: 90%;
 }
 
+.results-info-table {
+  height: 200px;
+}
+
+
 .hide {
   visibility: hidden;
 }
@@ -181,8 +197,21 @@ li.submitter-name {
 div.submitter-info {
   padding: 0 16px;
   margin-top: 8px;
+  height: 200px;
+  overflow-y: scroll;
 }
-
+.results-header {
+  display: flex;
+  flex-flow: row;
+}
+.header-table-wrapper {
+  display: flex;
+  width: 50%;
+}
+.submitter-info {
+  display: flex;
+  width: 50%;
+}
 .mdl-layout__content {
   width: 100%;
 }
