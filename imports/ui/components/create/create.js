@@ -56,7 +56,7 @@ Template.create.events({
         console.error(error);
         return false;
       } else {
-        document.querySelector('#link-text').innerHTML = `<a href="http://localhost:3000/submission/${result}">localhost:3000/submission/${result}</a>`;
+        document.querySelector('#link-text').innerHTML = `<a href="http://localhost:3000/submission/${result}">localhost:3000/submission/${result}</a><br><a href="http://localhost:3000/results/${result}">View Your Results</a>`;
       }
     });
     setTimeout(function() {

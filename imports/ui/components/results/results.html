@@ -6,9 +6,7 @@
       }
     </style>
     <div class="submission-page">
-      <button id="clear" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Destroy</button>
-      <button id="refresh" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Refresh</button>
-      <div class="results-header">
+          <div class="results-header">
         <div class="header-table-wrapper">
       <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp  results-info-table">
         <thead>
@@ -21,7 +19,7 @@
         <tbody>
           {{ #each event }}
           <tr>
-            <td class="mdl-data-table__cell--non-numeric event-info">{{ eventName }}</td>
+            <td class="mdl-data-table__cell--non-numeric event-info event-name-cell">{{ eventName }}</td>
             <td id="start-date" class="event-info">{{ formatDate startDate }}</td>
             <td class="event-info">{{ formatDate endDate }}</td>
           </tr>
@@ -48,7 +46,7 @@
         {{ #each day }}
           <div class="demo-card-image mdl-card mdl-shadow--2dp spaced full-width centered day-card">
             <div class="mdl-card__actions">
-              <span class="demo-card-image__filename">{{ formatDate date }}</span>
+              <span class="demo-card-image__filename day-date">{{ formatDate date }}</span>
             </div>
             <div class="time-box-container">
               <div class="mdl-card__title mdl-card--expand time-box"></div>

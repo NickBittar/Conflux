@@ -1,6 +1,6 @@
 /* CSS declarations go here */
 body {
-  background: url('img/broken-noise.png');
+  /*background: url('img/broken-noise.png');*/
 }
 #__blaze-root {
   background: linear-gradient(#3F51B5, #424242);
@@ -8,6 +8,7 @@ body {
   /*background-image: linear-gradient(to bottom, #315481, #918e82 100%);*/
   overflow: hidden;
 }
+
 .hour-ticks li {
   padding-right: calc(100%/12 - 1px);
   width: 2em;
@@ -103,6 +104,9 @@ div.time-box-container {
 .event-info {
   font-size: 24px;
 }
+th.event-info {
+  font-size: 20px !important;
+}
 .day-date {
   font-size: 24px;
 }
@@ -120,7 +124,10 @@ input.submit-name {
 button.submission-button {
   box-shadow: 0px 0px 0px 7px #fff;
 }
-
+.event-name-cell {
+  max-width: 200px;
+  overflow: hidden;
+}
 .create-area {
 
   width: 512px;
@@ -169,6 +176,7 @@ form {
 
 .results-info-table {
   height: 200px;
+  width: 100%;
 }
 
 
@@ -196,21 +204,23 @@ li.submitter-name {
 }
 div.submitter-info {
   padding: 0 16px;
-  margin-top: 8px;
   height: 200px;
-  overflow-y: scroll;
+  width: 100%;
+  overflow-y: auto;
 }
 .results-header {
   display: flex;
   flex-flow: row;
+  width: 90%;
+  margin: auto;
 }
 .header-table-wrapper {
   display: flex;
-  width: 50%;
+  margin-right: 8px;
+  width: 100%;
 }
 .submitter-info {
   display: flex;
-  width: 50%;
 }
 .mdl-layout__content {
   width: 100%;
