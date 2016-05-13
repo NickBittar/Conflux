@@ -42,11 +42,27 @@ Template.submission.events({
       alert("NEED A NAME!");
       return false;
     }
+    document.querySelector('dialog').showModal();
     let JSONexport = timeList.export(eventId, name);
     console.info(JSONexport);
 
-    Events.update({_id: eventId}, { $push: { submissions: JSONexport } });
+    let success = Events.update({_id: eventId}, { $push: { submissions: JSONexport } });
+    if(success) {
+      setTimeout(function() {
+      $('.mdl-dialog__title').hide();
+      $('.mdl-dialog__title').text("Time Submitted");
+      $('.mdl-dialog__title').fadeIn();
+      $('.mdl-spinner').hide();
+      $('.event-link').fadeIn();
+    }, 800);
+  } else {
+    console.error("times did not successfully submit.");
+  }
     return JSONexport;
+  },
+  'click .close'(event)
+  {
+    document.querySelector('dialog').close();
   },
 });
 

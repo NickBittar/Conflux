@@ -1,0 +1,8 @@
+{
+  "galaxy.meteor.com": {
+    "env": {
+      "ROOT_URL": "conflux.nicholasbittar.com",
+	  "MONGO_URL": "mongodb://ConfluxAdmin:volumeconflux1@ds021462.mlab.com:21462/conflux"
+    }
+  }
+}
