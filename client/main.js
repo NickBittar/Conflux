@@ -3,7 +3,6 @@ import '../imports/ui/components/navbar/navbar.js';
 import '../imports/ui/components/footer/footer.js';
 import '../imports/ui/components/submission/submission.js';
 import '../imports/ui/components/results/results.js';
-import '../imports/ui/components/mainLayout.js';
 
 var script = document.createElement('script');
 script.setAttribute('type', 'text/javascript');  // optional
