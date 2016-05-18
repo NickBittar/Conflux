@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<style>
+* {
+	margin: 0;
+	padding: 0;
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none;   /* Chrome/Safari/Opera */
+	-khtml-user-select: none;    /* Konqueror */
+	-moz-user-select: none;      /* Firefox */
+	-ms-user-select: none;       /* Internet Explorer/Edge */
+	user-select: none;
+}
+.container {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+
+}
+.block {
+	display: flex;
+
+	width: 90%;
+	height: 200px;
+	background-color: #ccd;
+	position: relative;
+}
+.time-block {
+	display: flex;
+	height: 200px;
+	width: 2px;
+	/*background-color: #e44;*/
+	background: -webkit-linear-gradient(left, #05DC33 33%, #55DE72 33%, #55DD71 66%, rgb(5, 220, 51) 30%);
+	position: absolute;
+	top: 0px;
+}
+#time {
+	height: 200px;
+	width: 100px;
+}
+
+#debug {
+	width: 100%;
+	background-color: #333;
+	color: #eee;
+}
+</style>
+<title></title>
+</head>
+<body>
+	<div class="container">
+		<div class="block" id="block">
+			hi
+		</div>
+	</div>
+	<div id="debug">
+		Debug<br>
+		Cursor: (<span id="cursor"></span>)<br>
+		Target: <span id="target"></span><br>
+	</div>
+	<script>
+	var doc = document,
+	day = doc.getElementById("block");
+	var debug = {
+		div: document.getElementById("debug"),
+		write: function(line) {
+			this.div.innerHTML += "<br>" + line;
+		},
+		u: function(ele, val) {
+			document.getElementById(ele).textContent = val;
+		}
+	};
+
+	function DateRange(element) {
+		this.days = [];
+		this.element = element;
+	}
+
+	function Day(element) {
+		this.times = [];
+		this.element = element;
+
+		// Methods
+		this.add = function(block) {
+			this.times.push(block);
+		};
+
+		this.delete = function(block) {
+			block.element.remove();	// Delete HTML element from DOM
+			return this.times.splice(times.indexOf(block), 1);
+		};
+
+		this.find = function(element) {
+			for (let i of this.times) {
+				if(i.element === element) {
+					return i;
+				}
+			}
+			return null;
+		};
+
+
+	}
+
+	function Block(day, startX, minWidth) {
+		// Properties
+		this.day = day;
+		this.startX = startX - day.offsetLeft;
+		this.lastX = this.startX;
+		this.dx = 0;
+		this.left = this.startX;
+		this.width = 0;
+		this.minWidth = minWidth || 0;
+		this.element = document.createElement('div');
+		this.element.className = 'time-block';
+		this.element.style.left = this.left + 'px';
+		this.day.appendChild(this.element);
+
+		// Constants
+		this.fineMovementY = this.day.offsetTop + this.day.offsetHeight + 200;
+
+		// Methods
+		this.update = function(event) {
+			let newX = event.clientX;
+			if(newX < this.day.offsetLeft) {
+				newX = this.day.offsetLeft;
+			}
+
+			// Handles scrub speed reduction when cursor is below time block
+			if (event.clientY > this.fineMovementY) {
+				console.debug('sloooow');
+				let reduction = (1 - (event.clientY-this.fineMovementY)/300);	// 300 is arbitrary
+				if (reduction > 1) { reduction = 1; }
+				if (reduction < 0) { reduction = 0; }
+
+				//dx += event.movementX*reduction;	// Can delete, was trying to replace 'movementX'
+				this.dx += (newX - this.lastX) * reduction;
+
+			} else {
+				this.dx = newX-this.day.offsetLeft - this.startX;
+			}
+			this.lastX = newX;
+			// Determines how the time block changes
+			if (this.dx > 0) {
+				this.left = this.startX;
+			} else if (this.dx < 0) {
+				this.left = this.dx + this.startX;
+			}
+			this.width = Math.abs(this.dx);
+
+			if (this.left < 0) {
+				this.left = 0;
+			}
+			if (this.left > this.day.offsetWidth-this.minWidth) {
+				this.left = this.day.offsetWidth-this.minWidth;
+			}
+			if (this.width + this.left > this.day.offsetWidth) {
+				this.width = this.day.offsetWidth-this.left;
+			}
+
+			this.updateDOM();
+		};
+
+		this.updateDOM = function() {
+			this.element.style.left = (this.left/this.day.offsetWidth)*100 + '%';
+			this.element.style.width = (this.width/this.day.offsetWidth)*100 + '%';
+		};
+	}
+
+	var currTimeBlock = null;
+
+	window.addEventListener('mousedown', mDown, false);
+	window.addEventListener('mouseup', mUp, false);
+	window.addEventListener('mousemove', mMove, false);
+	day.addEventListener('touchstart', touchStart, false);
+	day.addEventListener('touchmove', touchMove, false);
+	day.addEventListener('touchend', touchEnd, false);
+
+	function mDown(event) {
+		if(event.target.id === 'block') {
+			currTimeBlock = new Block(day, event.clientX);
+		} else if (event.target.className === 'time-block') {
+			console.warn('modify time');
+		}
+	}
+
+	function mUp(event) {
+		if (currTimeBlock !== null) {
+			currTimeBlock = null;
+			/*
+			if (dx > 0) {
+
+			} else if (dx < 0) {
+
+			} else {
+				console.warn('nothing happened.');
+			}
+			*/
+		}
+	}
+
+	function mMove(event) {
+		if (currTimeBlock !== null) {
+			if (event.buttons === 1) {
+				currTimeBlock.update(event);
+			}
+		}
+	}
+
+	function touchStart(event) {
+
+		if(event.touches.length === 1) {
+			event.preventDefault();
+			if(event.target.id === 'block') {
+				if(currTimeBlock !==  null) {
+					console.error('Touch started but currTimeBlock was not null (not pushed)');
+					touchEnd();
+				}
+				currTimeBlock = new Block(day, event.touches[0].clientX);
+			} else if (event.target.className === 'time-block') {
+				console.warn('modify time');
+			}
+		}
+	}
+
+	function touchMove(event) {
+		event.preventDefault();
+		if(currTimeBlock !== null) {
+			if(event.touches.length === 1) {
+				currTimeBlock.update(event.touches[0]);
+			}
+		}
+	}
+
+	function touchEnd(event) {
+		event.preventDefault();
+		if(currTimeBlock !== null) {
+			// currTimeBlock.day.cleanupOverlaps();
+			// currTimeBlock.day.updateAllTimes();
+			currTimeBlock = null;
+		}
+	}
+
+
+
+	function Time(event) {
+		console.log(event);
+		debug.u('cursor', event.offsetX + ', ' + event.offsetY);
+		debug.u('target', event.target.className);
+	}
+
+	function create(event) {
+		debug.u('cursor', event.offsetX + ', ' + event.offsetY);
+		debug.u('target', event.target.className);
+		var div = document.createElement("div");
+		div.className = "time-block";
+		div.addEventListener("click", Time, false);
+		event.target.appendChild(div);
+	}
+
+	</script>
+</body>
+</html>
