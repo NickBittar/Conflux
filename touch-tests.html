@@ -130,6 +130,8 @@
 		this.element.className = 'time-block';
 		this.element.style.left = this.left + 'px';
 		this.day.appendChild(this.element);
+		this.pan = false;	// Used for modifying the time block.
+		this.cursorOffset = 0;
 
 		this.leftHandle = document.createElement('div');
 		this.leftHandle.className = 'handle left';
@@ -162,25 +164,78 @@
 				this.dx = newX-this.day.offsetLeft - this.startX;
 			}
 			this.lastX = newX;
-			// Determines how the time block changes
-			if (this.dx > 0) {
-				this.left = this.startX;
-			} else if (this.dx < 0) {
-				this.left = this.dx + this.startX;
-			}
-			this.width = Math.abs(this.dx);
+			if (this.pan) {
+				this.panBlock(event);
+			} else if (this.expandLeft) {
+				this.expandLeftBlock();
+			} else if (this.expandRight) {
+				this.expandRightBlock();
+			} else {
+				// Determines how the time block changes
+				if (this.dx > 0) {
+					this.left = this.startX;
+				} else if (this.dx < 0) {
+					this.left = this.dx + this.startX;
+				}
+				this.width = Math.abs(this.dx);
 
-			if (this.left < 0) {
-				this.left = 0;
-			}
-			if (this.left > this.day.offsetWidth-this.minWidth) {
-				this.left = this.day.offsetWidth-this.minWidth;
-			}
-			if (this.width + this.left > this.day.offsetWidth) {
-				this.width = this.day.offsetWidth-this.left;
-			}
 
+				if (this.left < 0) {
+					this.left = 0;
+					// This handles the issue where dragging the handle off the edge would make the width grow
+					//this.width += newX - this.day.offsetLeft - this.cursorOffset;
+				}
+				if (this.left > this.day.offsetWidth-this.minWidth) {
+					this.left = this.day.offsetWidth-this.minWidth;
+				}
+				if (this.width + this.left > this.day.offsetWidth) {
+					this.width = this.day.offsetWidth-this.left;
+				}
+			}
 			this.updateDOM();
+		};
+
+		this.panBlock = function(event) {
+			this.left = this.startX + this.dx - this.cursorOffset;
+			if(this.left < 0) {this.left = 0;}
+			if(this.left+this.width > this.day.offsetWidth) { this.left = this.day.offsetWidth - this.width;}
+			console.info(event.clientY);
+		};
+
+		this.expandLeftBlock = function() {
+			let newLeft, newWidth; // new left and width
+			newLeft = this.dx + this.startX - this.cursorOffset;
+			newWidth = Math.abs(this.dx) + this.cursorOffset;
+
+			// So it can not go before the start of the day
+			if(newLeft < 0) {
+				newLeft = 0;
+				newWidth += this.lastX - this.day.offsetLeft - this.cursorOffset;
+			}
+			// Only update if the left handle stays on left side
+			if(this.startX - newLeft >= 2*this.leftHandle.offsetWidth) {
+				this.left = newLeft;
+				this.width = newWidth;
+			} else {
+				this.left = this.startX - 2*this.leftHandle.offsetWidth;
+				this.width = 2*this.leftHandle.offsetWidth;
+			}
+		};
+
+		this.expandRightBlock = function() {
+			let newWidth;
+			newWidth = this.dx - this.cursorOffset;
+
+			// So it can not go past the day
+			if(newWidth > this.day.offsetWidth-this.left) {
+				newWidth = this.day.offsetWidth-this.left;
+			}
+			// Handles when the right handle tries to overlap the left one
+			if(newWidth >= 2*this.rightHandle.offsetWidth) {
+				this.width = newWidth;
+			} else {
+				this.width = 2*this.rightHandle.offsetWidth;
+			}
 		};
 
 		this.updateDOM = function() {
@@ -189,6 +244,7 @@
 		};
 	}
 
+	var dayObj = new Day(day);
 	var currTimeBlock = null;
 
 	window.addEventListener('mousedown', mDown, false);
@@ -201,14 +257,31 @@
 	function mDown(event) {
 		if(event.target.id === 'block') {
 			currTimeBlock = new Block(day, event.clientX);
+			dayObj.add(currTimeBlock);
 		} else if (event.target.className === 'time-block') {
-			console.warn('modify time');
-			
+			currTimeBlock = dayObj.find(event.target);
+			currTimeBlock.pan = true;
+			currTimeBlock.cursorOffset = event.clientX - currTimeBlock.left - currTimeBlock.day.offsetLeft;
+		} else if (event.target.className.includes('handle')) {
+			currTimeBlock = dayObj.find(event.target.parentElement);
+			if (event.target.className.includes('left')) {
+				currTimeBlock.cursorOffset = event.clientX - currTimeBlock.left - currTimeBlock.day.offsetLeft;
+				currTimeBlock.startX = currTimeBlock.left+currTimeBlock.width;
+				currTimeBlock.expandLeft = true;
+				currTimeBlock.expandRight = false;
+			} else {
+				currTimeBlock.cursorOffset = event.clientX - (currTimeBlock.left+currTimeBlock.width) - currTimeBlock.day.offsetLeft;
+				currTimeBlock.startX = currTimeBlock.left;
+				currTimeBlock.expandLeft = false;
+				currTimeBlock.expandRight = true;
+			}
 		}
 	}
 
 	function mUp(event) {
 		if (currTimeBlock !== null) {
+			currTimeBlock.pan = false;
+			currTimeBlock.cursorOffset = 0;
 			currTimeBlock = null;
 			/*
 			if (dx > 0) {
