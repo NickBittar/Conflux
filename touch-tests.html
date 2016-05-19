@@ -41,6 +41,18 @@
 	height: 200px;
 	width: 100px;
 }
+.handle {
+    height: 100%;
+    width: 20px;
+    background-color: #00f;
+    position: absolute;
+}
+.left {
+    left: 0px;
+}
+.right {
+    right: 0px;
+}
 
 #debug {
 	width: 100%;
@@ -119,6 +131,13 @@
 		this.element.style.left = this.left + 'px';
 		this.day.appendChild(this.element);
 
+		this.leftHandle = document.createElement('div');
+		this.leftHandle.className = 'handle left';
+		this.rightHandle = document.createElement('div');
+		this.rightHandle.className = 'handle right';
+		this.element.appendChild(this.leftHandle);
+		this.element.appendChild(this.rightHandle);
+
 		// Constants
 		this.fineMovementY = this.day.offsetTop + this.day.offsetHeight + 200;
 
@@ -184,6 +203,7 @@
 			currTimeBlock = new Block(day, event.clientX);
 		} else if (event.target.className === 'time-block') {
 			console.warn('modify time');
+			
 		}
 	}
 
