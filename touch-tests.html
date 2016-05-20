@@ -27,6 +27,7 @@
 	height: 200px;
 	background-color: #ccd;
 	position: relative;
+	cursor: cell;
 }
 .time-block {
 	display: flex;
@@ -35,6 +36,7 @@
 	background: -webkit-linear-gradient(left, #05DC33 33%, #55DE72 33%, #55DD71 66%, rgb(5, 220, 51) 30%);
 	position: absolute;
 	bottom: 0px;
+	cursor: move;
 }
 #time {
 	height: 200px;
@@ -48,9 +50,11 @@
 }
 .left {
     left: 0px;
+		cursor: w-resize;
 }
 .right {
     right: 0px;
+		cursor: e-resize;
 }
 
 #debug {
@@ -73,9 +77,9 @@
 		Target: <span id="target"></span><br>
 	</div>
 	<script>
-	var doc = document,
+	const doc = document,
 	day = doc.getElementById("block");
-	var debug = {
+	const debug = {
 		div: document.getElementById("debug"),
 		write: function(line) {
 			this.div.innerHTML += "<br>" + line;
@@ -115,7 +119,7 @@
 
 		this.cleanupOverlaps = function ()
 		{
-		let times = this.times;
+		const times = this.times;
 			for(let i = 0; i < times.length; i++)
 			{
 				for(let j = 0; j < times.length; j++)
@@ -132,8 +136,8 @@
 		this.overlap = function(div1, div2)
 		{
 			let success = false;
-			let rect1 = div1.element.getBoundingClientRect();
-			let rect2 = div2.element.getBoundingClientRect();
+			const rect1 = div1.element.getBoundingClientRect();
+			const rect2 = div2.element.getBoundingClientRect();
 			if(!(rect1.right < rect2.left || rect1.left > rect2.right ))	// If there is an overlap
 			{
 				if(rect2.right < rect1.right && rect2.left > rect1.left)	// div1 contains div2
@@ -259,7 +263,6 @@
 			this.left = this.startX + this.dx - this.cursorOffset;
 			if(this.left < 0) {this.left = 0;}
 			if(this.left+this.width > this.day.offsetWidth) { this.left = this.day.offsetWidth - this.width;}
-			console.info(event.clientY);
 		};
 
 		this.expandLeftBlock = function() {
@@ -304,8 +307,8 @@
 		};
 	}
 
-	var dayObj = new Day(day);
-	var currTimeBlock = null;
+	const dayObj = new Day(day);
+	let currTimeBlock = null;
 
 	window.addEventListener('mousedown', mDown, false);
 	window.addEventListener('mouseup', mUp, false);
@@ -435,7 +438,7 @@
 	function create(event) {
 		debug.u('cursor', event.offsetX + ', ' + event.offsetY);
 		debug.u('target', event.target.className);
-		var div = document.createElement("div");
+		const div = document.createElement("div");
 		div.className = "time-block";
 		div.addEventListener("click", Time, false);
 		event.target.appendChild(div);
