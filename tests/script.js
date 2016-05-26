@@ -1,23 +1,102 @@
-const doc = document,
-day = doc.getElementById("block");
-const debug = {
-  div: document.getElementById("debug"),
-  write: function(line) {
-    this.div.innerHTML += "<br>" + line;
-  },
-  u: function(ele, val) {
-    document.getElementById(ele).textContent = val;
-  }
-};
 
-function DateRange(element) {
+const day = document.getElementById("block");
+const dayObj = new Day(day);
+let currTimeBlock = null;
+
+window.addEventListener('mousedown', mDown, false);
+window.addEventListener('mousemove', mMove, false);
+window.addEventListener('mouseup', mUp, false);
+window.addEventListener('touchstart', mDown, false);
+window.addEventListener('touchmove', mMove, false);
+window.addEventListener('touchend', mUp, false);
+
+
+function DateRange(startDate) {
   this.days = [];
-  this.element = element;
+  this.startDate = startDate;
+
+  this.add = function(dayIndex, timeBlock) {
+    if(this.days[dayIndex] === undefined) {
+      this.days[dayIndex] = new Day(dayIndex);
+    }
+    this.days[dayIndex].add(timeBlock);
+  };
+
+  this.remove = function(dayIndex, timeBlock) {
+    let timeIndex = this.days[dayIndex].indexOf(timeBlock);
+    if(timeIndex === -1) {
+      return false;
+    }
+    this.days[dayIndex].splice(timeIndex, 1);
+  };
+
+  this.getDay = function(dayIndex) {
+    return this.days[dayIndex];
+  };
+
+  this.export = function(eventId, name) {
+      let currDay;
+      let data = { eventId, name, times: [], };
+
+      for(let i in this.days)  // For each day
+      {
+        // Sets the current day to correct day based on the index of the array we are at
+        currDay = new Date(this.startDate);
+        currDay.setDate(currDay.getDate()+i);
+
+        // Goes through each time in the current day
+        for(j in this.days[i])  // For each time block in the day
+        {
+          let [startMin, endMin] = this.getMinutes(this.days[i].times[j].element);
+
+          let startTime = new Date(currDay.getTime()),
+              endTime   = new Date(currDay.getTime());
+
+          startTime.setMinutes(startMin);
+          endTime.setMinutes(endMin);
+
+          let newData = {start: startTime, end: endTime,};
+
+          data.times.push(newData);
+        }
+      }
+    return data;
+  };
+
+  this.getMinutes = function(div)
+  {
+    let space = document.getElementById('block').getBoundingClientRect();
+  	let rect = div.getBoundingClientRect();	// the div's rectangle position
+  	let timeStart, timeEnd;	// Will hold the time in minutes
+  	let l = rect.left-space.left;			// left side of div to left side of screen
+  	let r = rect.right-space.left;			// right side of div to left side of screen
+  	let w = $('.time-box')[0].clientWidth;	// screen width
+
+  	//Fix edge case errors that result in -1:58AM on the left and 12:01PM on right
+  	if(l < 0) { l = 0; }
+    if(r < 0) { r = 0; }
+  	if(r > w) { r = w; }
+    if(l > w) { l = w; }
+
+  	/* Set Ratios */
+  	let rl = l/w;						// Ratio of left-side of div to screen width
+  	let rr = r/w;						// Ratio of right-side of div to screen width
+
+    const minutesInDay = 24 * 60;
+    timeStart = rl * minutesInDay;
+    timeEnd = rr * minutesInDay;
+
+    // To fix the end of the day being 12:00PM when it should be 11:59PM
+    if(l === w) { timeStart -= 1; }
+    if(r === w) { timeEnd -= 1; }
+
+    return [timeStart, timeEnd];
+  }
 }
 
-function Day(element) {
+function Day(index) {
   this.times = [];
-  this.element = element;
+  this.dayIndex = index;
 
   // Methods
   this.add = function(block) {
@@ -55,41 +134,42 @@ function Day(element) {
         }
       }
     }
-  }
+  };
+
   this.overlap = function(div1, div2)
   {
     let success = false;
     const rect1 = div1.element.getBoundingClientRect();
     const rect2 = div2.element.getBoundingClientRect();
-    if(!(rect1.right < rect2.left || rect1.left > rect2.right ))	// If there is an overlap
+    if (!(rect1.right < rect2.left || rect1.left > rect2.right ))	// If there is an overlap
     {
-      if(rect2.right < rect1.right && rect2.left > rect1.left)	// div1 contains div2
+      if (rect2.right < rect1.right && rect2.left > rect1.left)	// div1 contains div2
       {
         this.delete(div2);
         success = true;
       }
-      else if(rect1.right < rect2.right && rect1.left > rect2.left)	// div2 contains div1
+      else if (rect1.right < rect2.right && rect1.left > rect2.left)	// div2 contains div1
       {
         this.delete(div1);
         success = true;
       }
-      else if(rect1.left < rect2.left)	// div2 overlaps div1 on div1's right side
+      else if (rect1.left < rect2.left)	// div2 overlaps div1 on div1's right side
       {
         div1.width = rect2.width + rect2.left - rect1.left;
         div1.updateDOM();
         this.delete(div2);
         success = true;
       }
-      else if(rect1.left > rect2.left) // div1 overlaps div2 on div2's right side
+      else if (rect1.left > rect2.left) // div1 overlaps div2 on div2's right side
       {
         div2.width = rect1.width + rect1.left - rect2.left;
         div2.updateDOM();
         this.delete(div1);
         success = true;
       }
-      else if(rect1.left === rect2.left)
+      else if (rect1.left === rect2.left)
       {
-        if(rect1.width >= rect2.width) {
+        if (rect1.width >= rect2.width) {
           this.delete(div2);
         }
         else {
@@ -99,9 +179,7 @@ function Day(element) {
       }
     }
     return success;
-  }
-
-
+  };
 }
 
 function Block(day, startX, minWidth) {
@@ -121,7 +199,7 @@ function Block(day, startX, minWidth) {
   this.cursorOffset = 0;
   this.startY = 0;
   this.screenY = 0;
-  this.targetY = 200;
+  this.targetY = 0;
   this.resetting = false;
   this.deleting = false;
 
@@ -154,12 +232,8 @@ function Block(day, startX, minWidth) {
       this.element.style.transform = `translateY(${this.screenY}px)`;
       const normalizedDragDistance = Math.abs(this.screenY / this.element.offsetHeight);
       const opacity = 1 - Math.pow(normalizedDragDistance, 3);
-      if(this.screenY > this.element.offsetHeight*0.35) {
-        opacity -= 0.1
-      }
       this.element.style.opacity = opacity;
     }
-
 
     // Handles scrub speed reduction when cursor is below time block
     if (clientY > this.fineMovementY) {
@@ -190,7 +264,6 @@ function Block(day, startX, minWidth) {
       }
       this.width = Math.abs(this.dx);
 
-
       if (this.left < 0) {
         this.left = 0;
         // This handles the issue where dragging the handle off the edge would make the width grow
@@ -217,7 +290,6 @@ function Block(day, startX, minWidth) {
     let newLeft, newWidth; // new left and width
     newLeft = this.dx + this.startX - this.cursorOffset;
     newWidth = Math.abs(this.dx) + this.cursorOffset;
-
     // So it can not go before the start of the day
     if(newLeft < 0) {
       newLeft = 0;
@@ -254,8 +326,46 @@ function Block(day, startX, minWidth) {
     this.element.style.width = (this.width/this.day.offsetWidth)*100 + '%';
   };
 
+  this.startInteraction = function(event) {
+    let clientX = event.clientX !== undefined ? event.clientX : event.touches[0].clientX;
+    let clientY = event.clientY !== undefined ? event.clientY : event.touches[0].clientY;
+    if(event.target.className === 'time-block') {
+      this.pan = true;
+      this.cursorOffset = clientX - this.left - this.day.offsetLeft;
+      this.startY = clientY;
+    } else if (event.target.className.includes('handle')) {
+      // Modifying one of the sides of a time block
+      if (event.target.className.includes('left')) {
+        this.cursorOffset = clientX - this.left - this.day.offsetLeft;
+        this.startX = this.left+this.width;
+        this.expandLeft = true;
+        this.expandRight = false;
+      } else {
+        this.cursorOffset = clientX - (this.left+this.width) - this.day.offsetLeft;
+        this.startX = this.left;
+        this.expandLeft = false;
+        this.expandRight = true;
+      }
+    }
+    this.element.style.zIndex = 1;
+  };
+
+  this.endInteraction = function(event) {
+    this.pan = false;
+    this.cursorOffset = 0;
+    this.element.style.zIndex = 0;
+    let clientY = event.clientY !== undefined ? event.clientY : event.touches[0].clientY;
+    if (this.startY - clientY > this.element.offsetHeight * 0.4) {
+      this.targetY = 200;
+      this.deleting = true;
+    } else {
+      this.targetY = 0;
+      this.deleting = false;
+    }
+    this.resetYPos();
+  };
+
   this.resetYPos = function() {
-    console.log(this.screenY);
     if(!(Math.abs(this.screenY) < this.targetY + 0.1 && Math.abs(this.screenY) > this.targetY - 0.1)) {
       this.resetting = true;
       this.screenY = (this.screenY - this.targetY) / 2;
@@ -264,34 +374,26 @@ function Block(day, startX, minWidth) {
       const opacity = 1 - Math.pow(normalizedDragDistance, 3);
       this.element.style.opacity = opacity;
       let that = this;
-      setTimeout(that.resetYPos.bind(this), 32);
+      setTimeout(that.resetYPos.bind(that), 32);
       //setTimeout(this.resetYPos, 1000);
     } else {
       if(this.resetting && this.targetY > 0) {
         dayObj.delete(this);
       }
       this.resetting = false;
-
-
     }
   };
+
 }
 
-const dayObj = new Day(day);
-let currTimeBlock = null;
 
-window.addEventListener('mousedown', mDown, false);
-window.addEventListener('mousemove', mMove, false);
-window.addEventListener('mouseup', mUp, false);
-window.addEventListener('touchstart', mDown, false);
-window.addEventListener('touchmove', mMove, false);
-window.addEventListener('touchend', mUp, false);
+
+
 
 function mDown(event) {
   if(event.buttons === 1 || (event.touches && event.touches.length === 1)) {
     event.preventDefault();
     let clientX = event.clientX !== undefined ? event.clientX : event.touches[0].clientX;
-    let clientY = event.clientY !== undefined ? event.clientY : event.touches[0].clientY;
     if(event.target.id === 'block') {
       if(currTimeBlock !== null) {
         console.error('Last event never finished with last time-block.');
@@ -299,29 +401,13 @@ function mDown(event) {
       // Need to create a new time block
       currTimeBlock = new Block(day, clientX);
       dayObj.add(currTimeBlock);
-    } else if (event.target.className === 'time-block') {
+    } else if (event.target.className === 'time-block' || event.target.className.includes('handle')) {
       // Interacting with an existing time block, specifcally the middle, to pan it.
       currTimeBlock = dayObj.find(event.target);
-      currTimeBlock.pan = true;
-      currTimeBlock.cursorOffset = clientX - currTimeBlock.left - currTimeBlock.day.offsetLeft;
-      currTimeBlock.startY = clientY;
-    } else if (event.target.className.includes('handle')) {
-      // Modifying one of the sides of a time block
-      currTimeBlock = dayObj.find(event.target.parentElement);
-      if (event.target.className.includes('left')) {
-        currTimeBlock.cursorOffset = clientX - currTimeBlock.left - currTimeBlock.day.offsetLeft;
-        currTimeBlock.startX = currTimeBlock.left+currTimeBlock.width;
-        currTimeBlock.expandLeft = true;
-        currTimeBlock.expandRight = false;
-      } else {
-        currTimeBlock.cursorOffset = clientX - (currTimeBlock.left+currTimeBlock.width) - currTimeBlock.day.offsetLeft;
-        currTimeBlock.startX = currTimeBlock.left;
-        currTimeBlock.expandLeft = false;
-        currTimeBlock.expandRight = true;
+      if(event.target.className.includes('handle')) {
+        currTimeBlock = dayObj.find(event.target.parentElement);
       }
-    }
-    if(currTimeBlock != null) {
-      currTimeBlock.element.style.zIndex = 1;
+      currTimeBlock.startInteraction(event);
     }
   }
 }
@@ -329,17 +415,7 @@ function mDown(event) {
 function mUp(event) {
   event.preventDefault();
   if (currTimeBlock !== null) {
-    currTimeBlock.pan = false;
-    currTimeBlock.cursorOffset = 0;
-    currTimeBlock.element.style.zIndex = 0;
-    if( currTimeBlock.startY - event.clientY > currTimeBlock.element.offsetHeight * 0.35) {
-      currTimeBlock.targetY = 200;
-      currTimeBlock.deleting = true;
-    } else {
-      currTimeBlock.targetY = 0;
-      currTimeBlock.deleting = false;
-    }
-    currTimeBlock.resetYPos();
+    currTimeBlock.endInteraction(event);
     currTimeBlock = null;
 
     dayObj.cleanupOverlaps();
@@ -353,21 +429,4 @@ function mMove(event) {
       currTimeBlock.update(event);
     }
   }
-}
-
-
-
-function Time(event) {
-  console.log(event);
-  debug.u('cursor', event.offsetX + ', ' + event.offsetY);
-  debug.u('target', event.target.className);
-}
-
-function create(event) {
-  debug.u('cursor', event.offsetX + ', ' + event.offsetY);
-  debug.u('target', event.target.className);
-  const div = document.createElement("div");
-  div.className = "time-block";
-  div.addEventListener("click", Time, false);
-  event.target.appendChild(div);
 }
