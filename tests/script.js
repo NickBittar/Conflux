@@ -182,11 +182,14 @@ function Day(index) {
   };
 }
 
-function Block(day, startX, minWidth) {
+function Block(day, event, minWidth) {
+  let clientX = event.clientX !== undefined ? event.clientX : event.touches[0].clientX;
+  let clientY = event.clientY !== undefined ? event.clientY : event.touches[0].clientY;
   // Properties
   this.day = day;
-  this.startX = startX - day.offsetLeft - 20;
+  this.startX = clientX - day.offsetLeft - 20;
   this.lastX = this.startX ;
+  this.lastY = clientY
   this.dx = 0;
   this.left = this.startX;
   this.width = 40;
@@ -229,6 +232,7 @@ function Block(day, startX, minWidth) {
     if(this.pan) {
       this.screenY = clientY - this.startY;
       this.screenY = Math.min(0, this.screenY);
+      this.lastY = clientY;
       this.element.style.transform = `translateY(${this.screenY}px)`;
       const normalizedDragDistance = Math.abs(this.screenY / this.element.offsetHeight);
       const opacity = 1 - Math.pow(normalizedDragDistance, 3);
@@ -354,7 +358,7 @@ function Block(day, startX, minWidth) {
     this.pan = false;
     this.cursorOffset = 0;
     this.element.style.zIndex = 0;
-    let clientY = event.clientY !== undefined ? event.clientY : event.touches[0].clientY;
+    let clientY = event.clientY !== undefined ? event.clientY : this.lastY;
     if (this.startY - clientY > this.element.offsetHeight * 0.4) {
       this.targetY = 200;
       this.deleting = true;
@@ -399,7 +403,7 @@ function mDown(event) {
         console.error('Last event never finished with last time-block.');
       }
       // Need to create a new time block
-      currTimeBlock = new Block(day, clientX);
+      currTimeBlock = new Block(day, event);
       dayObj.add(currTimeBlock);
     } else if (event.target.className === 'time-block' || event.target.className.includes('handle')) {
       // Interacting with an existing time block, specifcally the middle, to pan it.
@@ -424,7 +428,7 @@ function mUp(event) {
 
 function mMove(event) {
   if (currTimeBlock !== null) {
-    if (event.buttons === 1 || event.touches.length === 1) {
+    if (event.buttons === 1 || (event.touches !== undefined ? event.touches.length === 1 : false)) {
       event.preventDefault();
       currTimeBlock.update(event);
     }
