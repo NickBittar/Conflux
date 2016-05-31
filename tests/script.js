@@ -226,9 +226,6 @@ function Block(day, event, minWidth) {
     let clientY = event.clientY !== undefined ? event.clientY : event.touches[0].clientY;
 
     let newX = clientX;
-    if(newX < this.day.offsetLeft) {
-      newX = this.day.offsetLeft;
-    }
 
     // Handles deleting time-blocks (swiping up)
     if(this.pan) {
@@ -269,33 +266,23 @@ function Block(day, event, minWidth) {
         this.left = this.dx + this.startX;
       }
       this.width = Math.abs(this.dx);
-
-      if (this.left < 0) {
-        this.left = 0;
-        // This handles the issue where dragging the handle off the edge would make the width grow
-        //this.width += newX - this.day.offsetLeft - this.cursorOffset;
-      }
-      if (this.left > this.day.offsetWidth-this.minWidth) {
-        this.left = this.day.offsetWidth-this.minWidth;
-      }
-      if (this.width + this.left > this.day.offsetWidth) {
-        this.width = this.day.offsetWidth-this.left;
-      }
     }
+    this.adjustBounds();
     this.updateDOM();
   };
 
-  this.adjustBounds = function(growing) {
+  this.adjustBounds = function() {
     // check left side
     if(this.left < 0) {
-      if(growing) {
+      if(!this.pan) {
         this.width += this.left;
       }
       this.left = 0;
       return true;
     }
+    // Check right side
     if(this.width+this.left > this.day.offsetWidth) {
-      if(growing) {
+      if(!this.pan) {
         this.width = this.day.offsetWidth-this.left;
       } else {
         this.left = this.day.offsetWidth-this.width;
@@ -308,24 +295,18 @@ function Block(day, event, minWidth) {
   this.panBlock = function() {
 
     this.left = this.startX + this.dx - this.cursorOffset;
-    if(this.left < 0) {this.left = 0;}
-    if(this.left+this.width > this.day.offsetWidth) { this.left = this.day.offsetWidth - this.width;}
   };
 
   this.expandLeftBlock = function() {
     let newLeft, newWidth; // new left and width
     newLeft = this.dx + this.startX - this.cursorOffset;
     newWidth = Math.abs(this.dx) + this.cursorOffset;
-    // So it can not go before the start of the day
-    if(newLeft < 0) {
-      newLeft = 0;
-      newWidth += this.lastX - this.day.offsetLeft - this.cursorOffset;
-    }
+
     // Only update if the left handle stays on left side
     if(this.startX - newLeft >= 2*this.leftHandle.offsetWidth) {
       this.left = newLeft;
       this.width = newWidth;
-    } else {
+    } else { // Left is trying to go over right side, so stop it
       this.left = this.startX - 2*this.leftHandle.offsetWidth;
       this.width = 2*this.leftHandle.offsetWidth;
     }
@@ -335,10 +316,6 @@ function Block(day, event, minWidth) {
     let newWidth;
     newWidth = this.dx - this.cursorOffset;
 
-    // So it can not go past the day
-    if(newWidth > this.day.offsetWidth-this.left) {
-      newWidth = this.day.offsetWidth-this.left;
-    }
     // Handles when the right handle tries to overlap the left one
     if(newWidth >= 2*this.rightHandle.offsetWidth) {
       this.width = newWidth;
@@ -356,6 +333,7 @@ function Block(day, event, minWidth) {
   this.startInteraction = function(event) {
     let clientX = event.clientX !== undefined ? event.clientX : event.touches[0].clientX;
     let clientY = event.clientY !== undefined ? event.clientY : event.touches[0].clientY;
+    this.scrollTarget = event.target.className;
     if(event.target.className === 'time-block' || event.target.className === 'time-indicator') {
       this.pan = true;
       this.cursorOffset = clientX - this.left - this.day.offsetLeft;
@@ -381,6 +359,7 @@ function Block(day, event, minWidth) {
     this.pan = false;
     this.cursorOffset = 0;
     this.scrollTarget = null;
+    this.expandLeft = this.expandRight = false;
     this.element.style.zIndex = 0;
     let clientY = event.clientY !== undefined ? event.clientY : this.lastY;
     if (this.startY - clientY > this.element.offsetHeight * 0.4) {
@@ -485,7 +464,7 @@ function Block(day, event, minWidth) {
       case 'time-indicator':
         this.left += minIncrement;
         // Only if there is no bounds error update cursorOffset
-        if(!this.adjustBounds(false)) {
+        if(!this.adjustBounds()) {
           this.cursorOffset -= minIncrement;
         }
         break;
@@ -493,19 +472,19 @@ function Block(day, event, minWidth) {
         this.left += minIncrement;
         this.width += -minIncrement;
         // Only if there is no bounds error update cursorOffset
-        if(!this.adjustBounds(true)) {
-          this.cursorOffset -= -minIncrement;
+        if(!this.adjustBounds()) {
+          this.cursorOffset -= minIncrement;
         }
         break;
       case 'handle right':
         this.width += minIncrement;
         // Only if there is no bounds error update cursorOffset
-        if(!this.adjustBounds(true)) {
+        if(!this.adjustBounds()) {
           this.cursorOffset -= minIncrement;
         }
         break;
       default:
-        console.error('unexpected', event);
+        console.error('unexpected', event, this.scrollTarget);
         break;
       }
     this.updateDOM();
