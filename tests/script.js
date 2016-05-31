@@ -10,6 +10,7 @@ window.addEventListener('touchstart', mDown, false);
 window.addEventListener('touchmove', mMove, false);
 window.addEventListener('touchend', mUp, false);
 
+window.addEventListener('wheel', scroll, false);
 
 function DateRange(startDate) {
   this.days = [];
@@ -202,6 +203,7 @@ function Block(day, startX, minWidth) {
   this.targetY = 0;
   this.resetting = false;
   this.deleting = false;
+  this.scrollTarget = null;
 
   this.leftHandle = document.createElement('div');
   this.leftHandle.className = 'handle left';
@@ -279,6 +281,26 @@ function Block(day, startX, minWidth) {
     this.updateDOM();
   };
 
+  this.adjustBounds = function(growing) {
+    // check left side
+    if(this.left < 0) {
+      if(growing) {
+        this.width += this.left;
+      }
+      this.left = 0;
+      return true;
+    }
+    if(this.width+this.left > this.day.offsetWidth) {
+      if(growing) {
+        this.width = this.day.offsetWidth-this.left;
+      } else {
+        this.left = this.day.offsetWidth-this.width;
+      }
+      return true;
+    }
+    return false;
+  };
+
   this.panBlock = function() {
 
     this.left = this.startX + this.dx - this.cursorOffset;
@@ -324,12 +346,13 @@ function Block(day, startX, minWidth) {
   this.updateDOM = function() {
     this.element.style.left = (this.left/this.day.offsetWidth)*100 + '%';
     this.element.style.width = (this.width/this.day.offsetWidth)*100 + '%';
+    this.drawTime();
   };
 
   this.startInteraction = function(event) {
     let clientX = event.clientX !== undefined ? event.clientX : event.touches[0].clientX;
     let clientY = event.clientY !== undefined ? event.clientY : event.touches[0].clientY;
-    if(event.target.className === 'time-block') {
+    if(event.target.className === 'time-block' || event.target.className === 'time-indicator') {
       this.pan = true;
       this.cursorOffset = clientX - this.left - this.day.offsetLeft;
       this.startY = clientY;
@@ -353,6 +376,7 @@ function Block(day, startX, minWidth) {
   this.endInteraction = function(event) {
     this.pan = false;
     this.cursorOffset = 0;
+    this.scrollTarget = null;
     this.element.style.zIndex = 0;
     let clientY = event.clientY !== undefined ? event.clientY : event.touches[0].clientY;
     if (this.startY - clientY > this.element.offsetHeight * 0.4) {
@@ -363,6 +387,7 @@ function Block(day, startX, minWidth) {
       this.deleting = false;
     }
     this.resetYPos();
+    this.updateDOM();
   };
 
   this.resetYPos = function() {
@@ -384,6 +409,104 @@ function Block(day, startX, minWidth) {
     }
   };
 
+  this.drawTime = function() {
+    let [startTime, endTime] = this.getTimeRange();
+    let div = document.createElement('div');
+    div.className = 'time-indicator';
+    div.innerText = startTime + ' - ' + endTime;
+    //remove existing times
+    while(this.element.childElementCount > 2) {
+      this.element.children[2].remove();
+    }
+
+    //and add the new one
+    this.element.appendChild(div);
+  };
+
+  this.getTimeRange = function() {
+    let startTime = this.left / this.day.offsetWidth;
+    let endTime = (this.left+this.width) / this.day.offsetWidth;
+    startTime = this.formatTime(startTime);
+    endTime = this.formatTime(endTime);
+    return [startTime, endTime];
+  };
+
+  this.formatTime = function(time) {
+    // time will be a number between 0 and 1
+    time = Math.max(0, time);
+    time = Math.min(time, 1);
+    let suffix;
+    let hour, min;
+    if(time < 0.5) {
+      suffix = "AM";
+    } else {
+      suffix = "PM";
+    }
+
+    hour = Math.floor(time * 24);
+    min = Math.floor((time*24 - hour)*60);
+
+    // pad minutes with leading 0 for single digit minutes
+    if(min.toString().length === 1) {
+      min = '0' + min;
+    }
+    // For 12Hr times, not military
+    if(hour > 12) {
+      hour -= 12;
+    }
+
+    // So the start of the day is 12:00AM and not 0:00AM
+    if(hour === 0) {
+      hour = 12;
+    }
+
+    let formattedTime = hour + ':' + min + suffix;
+    // to avoid confusions
+    if(formattedTime === '12:00PM') {
+      formattedTime = '11:59PM';
+    }
+    return formattedTime;
+  };
+
+  this.increment = function(event) {
+
+    let minIncrement = this.day.offsetWidth / (24*60);
+    if(this.scrollTarget === null) {
+      this.scrollTarget = event.target.className;
+    }
+    let direction = Math.sign(-event.deltaY || event.deltaX);
+    minIncrement = direction * minIncrement;
+    switch(this.scrollTarget) {
+      case 'time-block':
+      case 'time-indicator':
+        this.left += minIncrement;
+        // Only if there is no bounds error update cursorOffset
+        if(!this.adjustBounds(false)) {
+          this.cursorOffset -= minIncrement;
+        }
+        break;
+      case 'handle left':
+        this.left += minIncrement;
+        this.width += -minIncrement;
+        // Only if there is no bounds error update cursorOffset
+        if(!this.adjustBounds(true)) {
+          this.cursorOffset -= -minIncrement;
+        }
+        break;
+      case 'handle right':
+        this.width += minIncrement;
+        // Only if there is no bounds error update cursorOffset
+        if(!this.adjustBounds(true)) {
+          this.cursorOffset -= minIncrement;
+        }
+        break;
+      default:
+        console.error('unexpected', event);
+        break;
+      }
+    this.updateDOM();
+  };
+
 }
 
 
@@ -401,10 +524,10 @@ function mDown(event) {
       // Need to create a new time block
       currTimeBlock = new Block(day, clientX);
       dayObj.add(currTimeBlock);
-    } else if (event.target.className === 'time-block' || event.target.className.includes('handle')) {
+    } else if (event.target.className === 'time-block' || event.target.className.includes('handle') || event.target.className === 'time-indicator') {
       // Interacting with an existing time block, specifcally the middle, to pan it.
       currTimeBlock = dayObj.find(event.target);
-      if(event.target.className.includes('handle')) {
+      if(event.target.className.includes('handle') || event.target.className === 'time-indicator') {
         currTimeBlock = dayObj.find(event.target.parentElement);
       }
       currTimeBlock.startInteraction(event);
@@ -428,5 +551,12 @@ function mMove(event) {
       event.preventDefault();
       currTimeBlock.update(event);
     }
+  }
+}
+
+function scroll(event) {
+  if(currTimeBlock !== null) {
+      event.preventDefault();
+      currTimeBlock.increment(event);
   }
 }
