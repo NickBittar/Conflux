@@ -1,7 +1,45 @@
 
 const day = document.getElementById("block");
-const dayObj = new Day(day);
-let currTimeBlock = null;
+//const dayObj = new Day(day);
+const dateRange = new DateRange(new Date('2016-06-01'), new Date(), 9, 17);
+
+init();
+function init() {
+  let container = document.querySelector('.container');
+  console.info(container);
+  let startDate = new Date(dateRange.startDate.getTime());
+  const days = document.querySelectorAll('.block');
+  startDate.setMinutes(startDate.getMinutes() + startDate.getTimezoneOffset());
+  console.log(startDate, dateRange.endDate);
+  let i = 0;
+  while(startDate.getTime() <= dateRange.endDate.getTime()) {
+    let div = document.createElement('div');
+    div.className = 'block';
+    div.id = 'block';
+    div.innerText = startDate;
+    container.appendChild(div);
+    dateRange.days.push(new Day(i++, startDate, div, dateRange.startTime, dateRange.endTime));
+    // make tick marks
+    let ticks = document.createElement('div');
+    ticks.className = 'time-marks';
+    for(let j = dateRange.startTime; j <= dateRange.endTime; j++) {
+      let span = document.createElement('span');
+      span.className = 'time-mark';
+      if(j <= 12) {
+        span.innerText = j;
+      } else {
+        span.innerText = j-12;
+      }
+      if(j === 12) {
+        span.innerHTML += '<br>PM';
+      }
+      ticks.appendChild(span);
+    }
+    container.appendChild(ticks);
+
+    startDate.setDate(startDate.getDate()+1);
+  }
+}
 
 window.addEventListener('mousedown', mDown, false);
 window.addEventListener('mousemove', mMove, false);
@@ -12,9 +50,15 @@ window.addEventListener('touchend', mUp, false);
 
 window.addEventListener('wheel', scroll, false);
 
-function DateRange(startDate) {
+function DateRange(startDate, endDate, minTime, maxTime) {
   this.days = [];
   this.startDate = startDate;
+  this.endDate = endDate;
+  this.startTime = minTime;
+  this.endTime = maxTime;
+
+  this.currTimeBlock = null;
+  this.currDay = null;
 
   this.add = function(dayIndex, timeBlock) {
     if(this.days[dayIndex] === undefined) {
@@ -31,9 +75,31 @@ function DateRange(startDate) {
     this.days[dayIndex].splice(timeIndex, 1);
   };
 
+  this.setCurrTimeBlock = function(timeBlock) {
+    this.currTimeBlock = timeBlock;
+  }
+  this.currTimeIsSet = function() {
+    return this.currTimeBlock !== null;
+  }
+  this.clearCurrTimeBlock = function() {
+    this.currTimeBlock = null;
+  }
+
   this.getDay = function(dayIndex) {
-    return this.days[dayIndex];
+    if(typeof(dayIndex) === 'number') {
+      return this.days[dayIndex];
+    }
+    for(let i = 0; i < this.days.length; i++) {
+      if(this.days[i].element === dayIndex) {
+        return this.days[i];
+      }
+    }
+    console.info(this.days);
+    console.warn(dayIndex);
+    return false;
   };
+
+
 
   this.export = function(eventId, name) {
       let currDay;
@@ -95,11 +161,21 @@ function DateRange(startDate) {
   }
 }
 
-function Day(index) {
+function Day(index, date, element, minTime, maxTime) {
   this.times = [];
   this.dayIndex = index;
+  this.date = date;
+  this.element = element;
+  this.startTime = minTime;
+  this.endTime = maxTime;
 
   // Methods
+  this.createNewTime = function(event) {
+    const timeBlock = new TimeBlock(this.element, this, event);
+    this.add(timeBlock);
+    return timeBlock;
+  };
+
   this.add = function(block) {
     this.times.push(block);
   };
@@ -183,11 +259,13 @@ function Day(index) {
   };
 }
 
-function Block(day, event, minWidth) {
+function TimeBlock(day, dayObj, event, minWidth) {
   let clientX = event.clientX !== undefined ? event.clientX : event.touches[0].clientX;
   let clientY = event.clientY !== undefined ? event.clientY : event.touches[0].clientY;
   // Properties
   this.day = day;
+  this.dayObj = dayObj;
+  console.info(day);
   this.startX = clientX - day.offsetLeft - 20;
   this.lastX = this.startX ;
   this.lastY = clientY
@@ -386,7 +464,7 @@ function Block(day, event, minWidth) {
       //setTimeout(this.resetYPos, 1000);
     } else {
       if(this.resetting && this.targetY > 0) {
-        dayObj.delete(this);
+        this.dayObj.delete(this);
       }
       this.resetting = false;
     }
@@ -418,6 +496,18 @@ function Block(day, event, minWidth) {
     // time will be a number between 0 and 1
     time = Math.max(0, time);
     time = Math.min(time, 1);
+
+    // for customizable time ranges for days (eg: between 9am and 5pm [9 - 17])
+    let minTime = this.dayObj.startTime;
+    let maxTime = this.dayObj.endTime;
+    let deltaTime = maxTime-minTime;
+    let minPct = minTime / 24;
+    let timePct = (deltaTime*time)/24 + minPct;
+    console.info(minTime, maxTime);
+    console.log(time, timePct);
+    time = timePct;
+
+
     let suffix;
     let hour, min;
     if(time < 0.5) {
@@ -445,7 +535,7 @@ function Block(day, event, minWidth) {
 
     let formattedTime = hour + ':' + min + suffix;
     // to avoid confusions
-    if(formattedTime === '12:00PM') {
+    if(time > 0.9 && formattedTime === '12:00PM') {
       formattedTime = '11:59PM';
     }
     return formattedTime;
@@ -501,45 +591,56 @@ function mDown(event) {
     event.preventDefault();
     let clientX = event.clientX !== undefined ? event.clientX : event.touches[0].clientX;
     if(event.target.id === 'block') {
-      if(currTimeBlock !== null) {
+      if(dateRange.currTimeIsSet()) {
         console.error('Last event never finished with last time-block.');
       }
+      dateRange.currDay = dateRange.getDay(event.target);
       // Need to create a new time block
-      currTimeBlock = new Block(day, event);
-      dayObj.add(currTimeBlock);
-    } else if (event.target.className === 'time-block' || event.target.className.includes('handle') || event.target.className === 'time-indicator') {
-      // Interacting with an existing time block, specifcally the middle, to pan it.
-      currTimeBlock = dayObj.find(event.target);
-      if(event.target.className.includes('handle') || event.target.className === 'time-indicator') {
-        currTimeBlock = dayObj.find(event.target.parentElement);
+      dateRange.setCurrTimeBlock(dateRange.currDay.createNewTime(event));
+    } else if (event.target.className === 'time-block'   ||
+               event.target.className.includes('handle') ||
+               event.target.className === 'time-indicator') {
+      if(event.target.parentElement.className === 'block') {
+        console.log(event.target.parentElement);
+        dateRange.currDay = dateRange.getDay(event.target.parentElement);
+      } else if(event.target.parentElement.parentElement.className === 'block') {
+        dateRange.currDay = dateRange.getDay(event.target.parentElement.parentElement);
+      } else {
+        console.error('Could not find current day', event.target);
       }
-      currTimeBlock.startInteraction(event);
+      // Interacting with an existing time block, specifcally the middle, to pan it.
+      console.warn(dateRange.currDay);
+      dateRange.setCurrTimeBlock(dateRange.currDay.find(event.target));
+      if(event.target.className.includes('handle') || event.target.className === 'time-indicator') {
+        dateRange.setCurrTimeBlock(dateRange.currDay.find(event.target.parentElement));
+      }
+      dateRange.currTimeBlock.startInteraction(event);
     }
   }
 }
 
 function mUp(event) {
   event.preventDefault();
-  if (currTimeBlock !== null) {
-    currTimeBlock.endInteraction(event);
-    currTimeBlock = null;
+  if (dateRange.currTimeIsSet()) {
+    dateRange.currTimeBlock.endInteraction(event);
+    dateRange.getDay(dateRange.currTimeBlock.day).cleanupOverlaps();
+    dateRange.clearCurrTimeBlock();
 
-    dayObj.cleanupOverlaps();
   }
 }
 
 function mMove(event) {
-  if (currTimeBlock !== null) {
+  if (dateRange.currTimeIsSet()) {
     if (event.buttons === 1 || (event.touches !== undefined ? event.touches.length === 1 : false)) {
       event.preventDefault();
-      currTimeBlock.update(event);
+      dateRange.currTimeBlock.update(event);
     }
   }
 }
 
 function scroll(event) {
-  if(currTimeBlock !== null) {
+  if(dateRange.currTimeIsSet()) {
       event.preventDefault();
-      currTimeBlock.increment(event);
+      dateRange.currTimeBlock.increment(event);
   }
 }
