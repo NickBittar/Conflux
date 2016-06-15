@@ -21,15 +21,29 @@ function init() {
     let ticks = document.createElement('div');
     ticks.className = 'time-marks';
     for(let j = dateRange.startTime; j <= dateRange.endTime; j++) {
+      // Each hour should have at least 24 pixels of width
+      if(document.body.offsetWidth < (dateRange.endTime - dateRange.startTime)*24) {
+        let k = j-dateRange.startTime;
+        if(j != dateRange.startTime && j != dateRange.endTime) {
+          if(k%2 === 1) {
+            continue;
+          }
+        }
+      }
       let span = document.createElement('span');
       span.className = 'time-mark';
-      if(j <= 12) {
-        span.innerText = j;
-      } else {
-        span.innerText = j-12;
+      let hour = j;
+      if(hour > 12) {
+        hour -= 12;
       }
+      if(hour === 0) {
+        hour = 12;
+      }
+      span.innerText = hour;
       if(j === 12) {
         span.innerHTML += '<br>PM';
+      } else if(hour%12===0) {
+        span.innerHTML += '<br>AM';
       }
       ticks.appendChild(span);
     }
@@ -804,8 +818,8 @@ function mDown(event) {
       if(event.target.className.includes('handle') || event.target.className === 'time-indicator') {
         dateRange.setCurrTimeBlock(dateRange.currDay.find(event.target.parentElement));
       }
+      dateRange.currTimeBlock.startInteraction(event);
     }
-    dateRange.currTimeBlock.startInteraction(event);
   }
 }
 
