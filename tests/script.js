@@ -721,6 +721,18 @@ function TimeBlock(day, dayObj, event, minWidth) {
     let minIncrement = this.day.offsetWidth / (24*60);
     if(this.scrollTarget === null) {
       this.scrollTarget = event.target.className;
+      if(this.scrollTarget.includes('time-block')) {
+        this.scrollTarget = 'time-block';
+      } else if(this.scrollTarget.includes('time-indicator')) {
+        this.scrollTarget = 'time-indicator';
+      } else if(this.scrollTarget.includes('left')) {
+        this.scrollTarget = 'handle left';
+      } else if(this.scrollTarget.includes('right')) {
+        this.scrollTarget = 'handle right';
+      } else {
+        console.error(event.target, ' is not an element to increment.');
+        this.scrollTarget = 'block';
+      }
     }
     let direction = Math.sign(-event.deltaY || event.deltaX);
     minIncrement = direction * minIncrement;
@@ -747,6 +759,9 @@ function TimeBlock(day, dayObj, event, minWidth) {
         if(!this.adjustBounds()) {
           this.cursorOffset -= minIncrement;
         }
+        break;
+      case 'block':
+        // Creating timeblock, lets not do anything
         break;
       default:
         console.error('unexpected', event, this.scrollTarget);
