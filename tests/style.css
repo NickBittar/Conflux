@@ -9,6 +9,10 @@
 	user-select: none;
 
 	font-family: helvetica;
+	color: #212121
+}
+body {
+	background-color: #fafafa;
 }
 .container {
 	display: flex;
@@ -16,22 +20,21 @@
 	justify-content: center;
 	align-items: center;
   margin-top: 300px;
-	background-color: #eee;
+	background-color: #fafafa;
 }
 .day {
 	display: flex;
 	flex-direction: column;
 	width: 90%;
-	background-color: #FAFAFA;
-	border-radius: 5px;
-	padding: 16px 32px;
+	background-color: #FFF;
+	/*padding: 16px 32px;*/
 	margin-top: 10px;
 	margin-bottom: 10px;
 	box-shadow: 0 3px 6px rgba(0,0,0,0.12), 0 3px 6px rgba(0,0,0,0.24);
 }
 .day-date {
 	font-size: 24px;
-	margin-bottom: 32px;
+	margin: 16px;
 }
 .block {
 	display: flex;
@@ -39,6 +42,7 @@
 	background-color: #ccd;
 	position: relative;
 	cursor: cell;
+	margin: 32px 24px 8px;
 }
 .time-block {
 	display: flex;
@@ -103,9 +107,11 @@
 .time-marks {
 	display: flex;
 	justify-content: space-between;
+	margin: 8px 24px;
 }
 .time-mark {
 	display: flex;
 	width: 0px;
 	transform: translateX(-5px);
+	color: #616161;
 }
