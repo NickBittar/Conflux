@@ -243,6 +243,7 @@ function Day(index, date, element, minTime, maxTime) {
   this.createNewTime = function(event) {
     // Create the new TimeBlock object
     const timeBlock = new TimeBlock(this.element, this, event);
+    timeBlock.drawTime();
     // and add it to the times for this day
     this.add(timeBlock);
     // Returns the timeblock, as it will probably be what we will be interacting with
@@ -275,6 +276,10 @@ function Day(index, date, element, minTime, maxTime) {
    *  return: the TimeBlock object of the given HTML DOM element
    */
   this.find = function(element) {
+    // Handles if the element is a component of the timeblock
+    if(element.className.includes('handle') || element.className.includes('time-indicator')) {
+      element = element.parentElement;
+    }
     // Go through each TimeBlock object in the day
     for (let timeBlock of this.times) {
       // If one of the TimeBlock's element is equal to the given element
@@ -599,6 +604,7 @@ function TimeBlock(day, dayObj, event, minWidth) {
     }
     this.resetYPos();
     this.updateDOM();
+    this.drawTime();
   };
 
   /**
