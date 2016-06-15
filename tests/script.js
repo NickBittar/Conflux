@@ -6,11 +6,9 @@ const dateRange = new DateRange(new Date('2016-06-01'), new Date(), 9, 17);
 init();
 function init() {
   let container = document.querySelector('.container');
-  console.info(container);
   let startDate = new Date(dateRange.startDate.getTime());
   const days = document.querySelectorAll('.block');
   startDate.setMinutes(startDate.getMinutes() + startDate.getTimezoneOffset());
-  console.log(startDate, dateRange.endDate);
   let i = 0;
   while(startDate.getTime() <= dateRange.endDate.getTime()) {
     let div = document.createElement('div');
@@ -41,6 +39,7 @@ function init() {
   }
 }
 
+/* EVENT LISTENERS */
 window.addEventListener('mousedown', mDown, false);
 window.addEventListener('mousemove', mMove, false);
 window.addEventListener('mouseup', mUp, false);
@@ -50,57 +49,106 @@ window.addEventListener('touchend', mUp, false);
 
 window.addEventListener('wheel', scroll, false);
 
+
+
+///
+//////
+////////////
+/////////////////////////
+//////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 function DateRange(startDate, endDate, minTime, maxTime) {
-  this.days = [];
-  this.startDate = startDate;
-  this.endDate = endDate;
-  this.startTime = minTime;
-  this.endTime = maxTime;
+  this.days = [];             // An Array of the days in the daterange
+  this.startDate = startDate; // The starting date of the daterange
+  this.endDate = endDate;     // The ending date of the daterange
+  this.startTime = minTime;   // The earliest hour of the event (0-23)
+  this.endTime = maxTime;     // The latest hour of the event (1-24)
 
-  this.currTimeBlock = null;
-  this.currDay = null;
+  this.currTimeBlock = null;  // Used to keep track of the timeblock currently being interacted with
+  this.currDay = null;        // To keep track of the current day being interacted with
 
+  /**
+   *  Adds a new timeblock to a day for the daterange
+   *  int: dayIndex is the index of the day the timeblock is being added to
+   *  obj: The timeblock to add
+   */
   this.add = function(dayIndex, timeBlock) {
+    /* @deprecated: all day objects are instantiated on DateRange creation */
+    // Check if a day object does not exist for the dayIndex
     if(this.days[dayIndex] === undefined) {
+      console.error('Adding timeblock to day that does not exist yet.');
+      // Create the day obj since it doesn't exist
       this.days[dayIndex] = new Day(dayIndex);
     }
+    /* @endDeprecation */
+    // Add the timeblock to the day
     this.days[dayIndex].add(timeBlock);
   };
 
+  /**
+   *  Removes a given timeblock from the specified day
+   *  int: dayIndex is the index of the day the timeblock is in (deprecated?)
+   *  obj: timeBlock is the timeblock to remove
+   */
   this.remove = function(dayIndex, timeBlock) {
+    // Find the index of the given timeBlock in the given day's Array of timeblocks
     let timeIndex = this.days[dayIndex].indexOf(timeBlock);
+    // If the timeblock doesn't exist return false
     if(timeIndex === -1) {
+      console.error('Tried to remove a timeblock that could not be found.');
       return false;
     }
+    // Splice out the timeblock at its index for the given dayIndex
     this.days[dayIndex].splice(timeIndex, 1);
   };
 
+  /**
+   *  Sets the current time block that is being interacted with.
+   *  obj: timeBlock is the timeblock being interacted with.
+   */
   this.setCurrTimeBlock = function(timeBlock) {
     this.currTimeBlock = timeBlock;
   }
+  /**
+   *  Checks if there is a current time block being interacted with.
+   *  return: true if there is a current time block, false otherwise.
+   */
   this.currTimeIsSet = function() {
     return this.currTimeBlock !== null;
   }
+  /**
+   *  Clears the current time block pointer.
+   */
   this.clearCurrTimeBlock = function() {
     this.currTimeBlock = null;
   }
 
+  /**
+   *  gets the day object at the given day index.
+   *  int/ele: dayIndex is the index of the day to get or the DOM element of the day wanted.
+   *  return: the day object at the given dayIndex, if it could not be found returns false.
+   */
   this.getDay = function(dayIndex) {
+    // If we have the index of the day, we return the Day object at that index.
     if(typeof(dayIndex) === 'number') {
       return this.days[dayIndex];
     }
+    // If we were given the element of the day we go through all the days to find its Day object.
     for(let i = 0; i < this.days.length; i++) {
       if(this.days[i].element === dayIndex) {
         return this.days[i];
       }
     }
-    console.info(this.days);
-    console.warn(dayIndex);
+    // Could not find anything
+    console.error('Could not get day given dayIndex=' + dayIndex);
     return false;
   };
 
 
-
+  /**
+   *  UNTESTED
+   *  TODO: this
+   */
   this.export = function(eventId, name) {
       let currDay;
       let data = { eventId, name, times: [], };
@@ -130,8 +178,12 @@ function DateRange(startDate, endDate, minTime, maxTime) {
     return data;
   };
 
+  /**
+   *  WILL BE REPLACED BY TIMEBLOCK FUNCTION
+   */
   this.getMinutes = function(div)
   {
+    console.warn('GETMINUTES CALLED ON', div);
     let space = document.getElementById('block').getBoundingClientRect();
   	let rect = div.getBoundingClientRect();	// the div's rectangle position
   	let timeStart, timeEnd;	// Will hold the time in minutes
@@ -160,40 +212,85 @@ function DateRange(startDate, endDate, minTime, maxTime) {
     return [timeStart, timeEnd];
   }
 }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////
+/////////////////////////
+////////////
+//////
+///
 
+
+
+///
+//////
+////////////
+/////////////////////////
+//////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 function Day(index, date, element, minTime, maxTime) {
-  this.times = [];
-  this.dayIndex = index;
-  this.date = date;
-  this.element = element;
-  this.startTime = minTime;
-  this.endTime = maxTime;
+  this.times = [];          // An array of all the timeblocks for the day
+  this.dayIndex = index;    // The index this day is in the daterange
+  this.date = date;         // This day's date
+  this.element = element;   // The DOM element that represents this
+  this.startTime = minTime; // The earliest hour the day begins at (0-23) inclusive
+  this.endTime = maxTime;   // The latest hour the day ends at (1-24)     exclusive
 
   // Methods
+  /**
+   *  Creates a new timeblock.
+   *  event: The event that caused the timeblock to be created
+   */
   this.createNewTime = function(event) {
+    // Create the new TimeBlock object
     const timeBlock = new TimeBlock(this.element, this, event);
+    // and add it to the times for this day
     this.add(timeBlock);
+    // Returns the timeblock, as it will probably be what we will be interacting with
     return timeBlock;
   };
 
-  this.add = function(block) {
-    this.times.push(block);
+  /**
+   *  Adds a timeblock to this day's array of times.
+   *  obj: timeBlock is a timeblock for this day
+   */
+  this.add = function(timeBlock) {
+    // Push the timeblock to this day's array of times
+    this.times.push(timeBlock);
   };
 
-  this.delete = function(block) {
-    block.element.remove();	// Delete HTML element from DOM
-    return this.times.splice(this.times.indexOf(block), 1);
+ /**
+  *  Removes the time block from the DOM and its day's times array.
+  *  obj: timeBlock is the timeBlock to delete
+  */
+  this.delete = function(timeBlock) {
+    // Delete HTML element from DOM
+    timeBlock.element.remove();
+    // Remove and return the timeBlock obj
+    return this.times.splice(this.times.indexOf(timeBlock), 1);
   };
 
+  /**
+   *  Finds the TimeBlock object of the given DOM element.
+   *  DOM: element is a timeblock html element
+   *  return: the TimeBlock object of the given HTML DOM element
+   */
   this.find = function(element) {
-    for (let i of this.times) {
-      if(i.element === element) {
-        return i;
+    // Go through each TimeBlock object in the day
+    for (let timeBlock of this.times) {
+      // If one of the TimeBlock's element is equal to the given element
+      if(timeBlock.element === element) {
+        // Then this is the element's corresponding TimeBlock object
+        return timeBlock;
       }
     }
+    // Nothing is found
+    console.error('Tried to find the TimeBlock of the element: ', element);
     return null;
   };
 
+  /**
+   *  Goes through each pair of TimeBlocks to see if any are overlapping and simplifies them.
+   */
   this.cleanupOverlaps = function ()
   {
   const times = this.times;
@@ -213,6 +310,12 @@ function Day(index, date, element, minTime, maxTime) {
     }
   };
 
+  /**
+   *  Given two TimeBock objects, it checks their DOM rectangles to see if they are overlapping.
+   *  If they are overlapping, it properly handles the absorption/deletion of them.
+   *  obj: div1 and div2 are TimeBlock objects to check if overlapping and handle it.
+   *  return true if there was an overlap and was handled, false if there was no overlap
+   */
   this.overlap = function(div1, div2)
   {
     let success = false;
@@ -258,34 +361,52 @@ function Day(index, date, element, minTime, maxTime) {
     return success;
   };
 }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////
+/////////////////////////
+////////////
+//////
+///
 
+
+
+///
+//////
+////////////
+/////////////////////////
+//////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 function TimeBlock(day, dayObj, event, minWidth) {
   let clientX = event.clientX !== undefined ? event.clientX : event.touches[0].clientX;
   let clientY = event.clientY !== undefined ? event.clientY : event.touches[0].clientY;
   // Properties
-  this.day = day;
-  this.dayObj = dayObj;
-  console.info(day);
-  this.startX = clientX - day.offsetLeft - 20;
-  this.lastX = this.startX ;
-  this.lastY = clientY
-  this.dx = 0;
-  this.left = this.startX;
-  this.width = 40;
-  this.minWidth = minWidth || 0;
-  this.element = document.createElement('div');
+  this.day = day;           // The DOM element of the day the timeblock is inside of
+  this.dayObj = dayObj;     // The Day object this timeblock belongs to
+  this.startX = clientX - day.offsetLeft - 20;  // The start Xpos, for finding differences in Xs
+  this.lastX = this.startX; // The previous X position
+  this.lastY = clientY;     // The previous Y position
+  this.dx = 0;              // The amount of displacement in the X axis
+  this.left = this.startX;  // The X val of left side of the timeblock
+  this.width = 40;          // The width of the timeblock
+  this.minWidth = minWidth || 0; // The minimum width the timeblock can be
+  this.pan = false;	        // Used for modifying the time block.
+  this.cursorOffset = 0;    // The difference in where interaction is from left side of element
+  this.startY = 0;          // The starting Y position for timeblock
+  this.screenY = 0;         // The Y displacement of the timeblock
+  this.targetY = 0;         // The Y position to head towards, either back to 0, or out off day
+  this.resetting = false;   // Whether or not the Y position is reseting back to normal
+  this.deleting = false;    // Whether or not the current timeblock is currently being deleted
+  this.scrollTarget = null; // Keep track which component of the timeblock being interacted with
+
+  // Create the HTML element for this timeblock
+  this.element = document.createElement('div'); // The html DOM element associated with this
+  // Sets the element's appropriate classname and left position
   this.element.className = 'time-block';
   this.element.style.left = this.left + 'px';
+  // Adds the element to the DOM
   this.day.appendChild(this.element);
-  this.pan = false;	// Used for modifying the time block.
-  this.cursorOffset = 0;
-  this.startY = 0;
-  this.screenY = 0;
-  this.targetY = 0;
-  this.resetting = false;
-  this.deleting = false;
-  this.scrollTarget = null;
 
+  // Create the handles of the timeblock
   this.leftHandle = document.createElement('div');
   this.leftHandle.className = 'handle left';
   this.rightHandle = document.createElement('div');
@@ -294,12 +415,16 @@ function TimeBlock(day, dayObj, event, minWidth) {
   this.element.appendChild(this.rightHandle);
 
   // Constants
-  this.fineMovementY = this.day.offsetTop + this.day.offsetHeight + 200;
+  this.fineMovementY = this.day.offsetTop + this.day.offsetHeight + 200;  // The Y pos threshold
 
   // Methods
+  /**
+   *  The big method to handle the interactions with the timeblock
+   */
   this.update = function(event) {
     if(this.resetting) { return; }
 
+    // Get the cursor's XY-position
     let clientX = event.clientX !== undefined ? event.clientX : event.touches[0].clientX;
     let clientY = event.clientY !== undefined ? event.clientY : event.touches[0].clientY;
 
@@ -345,10 +470,19 @@ function TimeBlock(day, dayObj, event, minWidth) {
       }
       this.width = Math.abs(this.dx);
     }
+
+    // Check if timeblock is out of the bounds of the day
     this.adjustBounds();
+    // Updates its DOM element to reflect its current state
     this.updateDOM();
+    // Set and draw the start and end times label of the timeblock
+    this.drawTime();
   };
 
+  /**
+   *  Checks if the timeblock is outside the bounds of the day and corrects it.
+   *  return: True if it made an adjustment, false otherwise.
+   */
   this.adjustBounds = function() {
     // check left side
     if(this.left < 0) {
@@ -370,11 +504,16 @@ function TimeBlock(day, dayObj, event, minWidth) {
     return false;
   };
 
+  /**
+   *  Moves the whole timeblock with the cursor without modifying the width
+   */
   this.panBlock = function() {
-
     this.left = this.startX + this.dx - this.cursorOffset;
   };
 
+  /**
+   *  Modifies the left side of the timeblock because the user is interacting with its left handle
+   */
   this.expandLeftBlock = function() {
     let newLeft, newWidth; // new left and width
     newLeft = this.dx + this.startX - this.cursorOffset;
@@ -390,6 +529,9 @@ function TimeBlock(day, dayObj, event, minWidth) {
     }
   };
 
+  /**
+   *  Modifies the right side of the timeblock because the user is interacting with its right handle
+   */
   this.expandRightBlock = function() {
     let newWidth;
     newWidth = this.dx - this.cursorOffset;
@@ -402,12 +544,17 @@ function TimeBlock(day, dayObj, event, minWidth) {
     }
   };
 
+  /**
+   *  Updates the timeblock's DOM element to reflect its left and width property values.
+   */
   this.updateDOM = function() {
     this.element.style.left = (this.left/this.day.offsetWidth)*100 + '%';
     this.element.style.width = (this.width/this.day.offsetWidth)*100 + '%';
-    this.drawTime();
   };
 
+  /**
+   *  Picks up from a mouseDown or touchStart event to begin the creation of the timeblock.
+   */
   this.startInteraction = function(event) {
     let clientX = event.clientX !== undefined ? event.clientX : event.touches[0].clientX;
     let clientY = event.clientY !== undefined ? event.clientY : event.touches[0].clientY;
@@ -433,6 +580,9 @@ function TimeBlock(day, dayObj, event, minWidth) {
     this.element.style.zIndex = 1;
   };
 
+  /**
+   *  Picks up from the mouseUp or touchEnd event to end the interaction with this timeblock.
+   */
   this.endInteraction = function(event) {
     this.pan = false;
     this.cursorOffset = 0;
@@ -451,6 +601,10 @@ function TimeBlock(day, dayObj, event, minWidth) {
     this.updateDOM();
   };
 
+  /**
+   *  The time block needs to either be brought down to its normal Y position or fly up out of its
+   *  day to disapear and be deleted.
+   */
   this.resetYPos = function() {
     if(!(Math.abs(this.screenY) < this.targetY + 0.1 && Math.abs(this.screenY) > this.targetY - 0.1)) {
       this.resetting = true;
@@ -470,6 +624,9 @@ function TimeBlock(day, dayObj, event, minWidth) {
     }
   };
 
+  /**
+   *  Creates the DOM element of the label showing the start and end times for the timeblock.
+   */
   this.drawTime = function() {
     let [startTime, endTime] = this.getTimeRange();
     let div = document.createElement('div');
@@ -483,7 +640,10 @@ function TimeBlock(day, dayObj, event, minWidth) {
     //and add the new one
     this.element.appendChild(div);
   };
-
+  /**
+   *  Get the start and end times of this timeblock.
+   *  return: an array containing the starting time and the ending time of the timeblock.
+   */
   this.getTimeRange = function() {
     let startTime = this.left / this.day.offsetWidth;
     let endTime = (this.left+this.width) / this.day.offsetWidth;
@@ -492,6 +652,11 @@ function TimeBlock(day, dayObj, event, minWidth) {
     return [startTime, endTime];
   };
 
+  /**
+   *  Formats a time from a percent to an actual 12HR time(e.g. 0.5 => 12:00PM)
+   *  dbl: time is a number between 0 and 1 representing the position in the day.
+   *  return: the formatted string of the time.
+   */
   this.formatTime = function(time) {
     // time will be a number between 0 and 1
     time = Math.max(0, time);
@@ -503,8 +668,6 @@ function TimeBlock(day, dayObj, event, minWidth) {
     let deltaTime = maxTime-minTime;
     let minPct = minTime / 24;
     let timePct = (deltaTime*time)/24 + minPct;
-    console.info(minTime, maxTime);
-    console.log(time, timePct);
     time = timePct;
 
 
@@ -541,8 +704,10 @@ function TimeBlock(day, dayObj, event, minWidth) {
     return formattedTime;
   };
 
+  /**
+   *  Changes the timeblock by a single minute increment with each scroll tick.
+   */
   this.increment = function(event) {
-
     let minIncrement = this.day.offsetWidth / (24*60);
     if(this.scrollTarget === null) {
       this.scrollTarget = event.target.className;
@@ -579,9 +744,13 @@ function TimeBlock(day, dayObj, event, minWidth) {
       }
     this.updateDOM();
   };
-
 }
-
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////
+/////////////////////////
+////////////
+//////
+///
 
 
 
@@ -601,7 +770,6 @@ function mDown(event) {
                event.target.className.includes('handle') ||
                event.target.className === 'time-indicator') {
       if(event.target.parentElement.className === 'block') {
-        console.log(event.target.parentElement);
         dateRange.currDay = dateRange.getDay(event.target.parentElement);
       } else if(event.target.parentElement.parentElement.className === 'block') {
         dateRange.currDay = dateRange.getDay(event.target.parentElement.parentElement);
@@ -609,7 +777,6 @@ function mDown(event) {
         console.error('Could not find current day', event.target);
       }
       // Interacting with an existing time block, specifcally the middle, to pan it.
-      console.warn(dateRange.currDay);
       dateRange.setCurrTimeBlock(dateRange.currDay.find(event.target));
       if(event.target.className.includes('handle') || event.target.className === 'time-indicator') {
         dateRange.setCurrTimeBlock(dateRange.currDay.find(event.target.parentElement));
