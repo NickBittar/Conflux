@@ -718,7 +718,7 @@ function TimeBlock(day, dayObj, event, minWidth) {
    *  Changes the timeblock by a single minute increment with each scroll tick.
    */
   this.increment = function(event) {
-    let minIncrement = this.day.offsetWidth / (24*60);
+    let minIncrement = this.day.offsetWidth / ((this.dayObj.endTime-this.dayObj.startTime)*60);
     if(this.scrollTarget === null) {
       this.scrollTarget = event.target.className;
       if(this.scrollTarget.includes('time-block')) {
