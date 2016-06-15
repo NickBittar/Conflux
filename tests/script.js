@@ -1,7 +1,7 @@
 
 const day = document.getElementById("block");
 //const dayObj = new Day(day);
-const dateRange = new DateRange(new Date('2016-06-01'), new Date(), 9, 17);
+const dateRange = new DateRange(new Date('2016-06-01'), new Date(), 0, 24);
 
 init();
 function init() {
@@ -11,11 +11,17 @@ function init() {
   startDate.setMinutes(startDate.getMinutes() + startDate.getTimezoneOffset());
   let i = 0;
   while(startDate.getTime() <= dateRange.endDate.getTime()) {
+    let day = document.createElement('div');
+    day.className = 'day';
     let div = document.createElement('div');
     div.className = 'block';
     div.id = 'block';
-    div.innerText = startDate;
-    container.appendChild(div);
+    let dayDate = document.createElement('div');
+    dayDate.className = 'day-date';
+    dayDate.innerText = startDate.toString().split('00')[0]; // quick hack to get a nice date
+    day.appendChild(dayDate);
+    day.appendChild(div);
+    container.appendChild(day);
     dateRange.days.push(new Day(i++, startDate, div, dateRange.startTime, dateRange.endTime));
     // make tick marks
     let ticks = document.createElement('div');
@@ -47,7 +53,7 @@ function init() {
       }
       ticks.appendChild(span);
     }
-    container.appendChild(ticks);
+    day.appendChild(ticks);
 
     startDate.setDate(startDate.getDate()+1);
   }
@@ -72,11 +78,11 @@ window.addEventListener('wheel', scroll, false);
 //////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 function DateRange(startDate, endDate, minTime, maxTime) {
-  this.days = [];             // An Array of the days in the daterange
-  this.startDate = startDate; // The starting date of the daterange
-  this.endDate = endDate;     // The ending date of the daterange
-  this.startTime = minTime;   // The earliest hour of the event (0-23)
-  this.endTime = maxTime;     // The latest hour of the event (1-24)
+  this.days = [];                 // An Array of the days in the daterange
+  this.startDate = startDate;     // The starting date of the daterange
+  this.endDate   = endDate;       // The ending date of the daterange
+  this.startTime = minTime || 0;  // The earliest hour of the event (0-23)
+  this.endTime   = maxTime || 24; // The latest hour of the event (1-24)
 
   this.currTimeBlock = null;  // Used to keep track of the timeblock currently being interacted with
   this.currDay = null;        // To keep track of the current day being interacted with
@@ -154,7 +160,7 @@ function DateRange(startDate, endDate, minTime, maxTime) {
       }
     }
     // Could not find anything
-    console.error('Could not get day given dayIndex=' + dayIndex);
+    console.error('Could not get day given dayIndex=', dayIndex);
     return false;
   };
 
@@ -661,6 +667,13 @@ function TimeBlock(day, dayObj, event, minWidth) {
     }
     // Update the text in the time label
     timeLabel.innerText = startTime + ' - ' + endTime;
+    if(timeLabel.getBoundingClientRect().right > window.innerWidth-10) {
+      timeLabel.style.left = '';
+      timeLabel.style.right = '3px';
+    } else {
+      timeLabel.style.left = '3px';
+      timeLabel.style.right = '';
+    }
   };
   /**
    *  Get the start and end times of this timeblock.
@@ -803,9 +816,9 @@ function mDown(event) {
       dateRange.currDay = dateRange.getDay(event.target);
       // Need to create a new time block
       dateRange.setCurrTimeBlock(dateRange.currDay.createNewTime(event));
-    } else if (event.target.className === 'time-block'   ||
-               event.target.className.includes('handle') ||
-               event.target.className === 'time-indicator') {
+    } else if (event.target.className.includes('time-block')   ||
+               event.target.className.includes('handle')       ||
+               event.target.className.includes('time-indicator')) {
       if(event.target.parentElement.className === 'block') {
         dateRange.currDay = dateRange.getDay(event.target.parentElement);
       } else if(event.target.parentElement.parentElement.className === 'block') {
@@ -815,7 +828,7 @@ function mDown(event) {
       }
       // Interacting with an existing time block, specifcally the middle, to pan it.
       dateRange.setCurrTimeBlock(dateRange.currDay.find(event.target));
-      if(event.target.className.includes('handle') || event.target.className === 'time-indicator') {
+      if(event.target.className.includes('handle') || event.target.className.includes('time-indicator')) {
         dateRange.setCurrTimeBlock(dateRange.currDay.find(event.target.parentElement));
       }
       dateRange.currTimeBlock.startInteraction(event);

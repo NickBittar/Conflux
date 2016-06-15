@@ -16,12 +16,25 @@
 	justify-content: center;
 	align-items: center;
   margin-top: 300px;
-
+	background-color: #eee;
+}
+.day {
+	display: flex;
+	flex-direction: column;
+	width: 90%;
+	background-color: #FAFAFA;
+	border-radius: 5px;
+	padding: 16px 32px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	box-shadow: 0 3px 6px rgba(0,0,0,0.12), 0 3px 6px rgba(0,0,0,0.24);
+}
+.day-date {
+	font-size: 24px;
+	margin-bottom: 32px;
 }
 .block {
 	display: flex;
-
-	width: 90%;
 	height: 200px;
 	background-color: #ccd;
 	position: relative;
@@ -37,15 +50,15 @@
 	cursor: move;
 	z-index: 0;
 	box-shadow: 0 3px 6px rgba(0,0,0,0.12), 0 3px 6px rgba(0,0,0,0.24);
-    transition: box-shadow 0.3s cubic-bezier(.25,.8,.25,1), transform 0.2s cubic-bezier(.25,.8,.25,1);
+  transition: box-shadow 0.3s cubic-bezier(.25,.8,.25,1), transform 0.2s cubic-bezier(.25,.8,.25,1);
 }
 .time-block:active {
 	background-color: #07FF00;
-	z-index: 3;
+	z-index: 3 !important;
 	box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
 }
 .time-block:hover {
-	z-index: 3;
+	z-index: 3 !important;
 	box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
 }
 #time {
@@ -83,14 +96,13 @@
 	white-space: nowrap;
 	cursor: default;
 	box-shadow: 0px 0px 0px 2px white, 0px 0px 0px 3px black;
-	left: 3px;
+	/* left: 3px; */
 
 }
 
 .time-marks {
 	display: flex;
 	justify-content: space-between;
-	width: 90%;
 }
 .time-mark {
 	display: flex;
