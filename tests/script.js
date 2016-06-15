@@ -618,9 +618,7 @@ function TimeBlock(day, dayObj, event, minWidth) {
       const normalizedDragDistance = Math.abs(this.screenY / this.element.offsetHeight);
       const opacity = 1 - Math.pow(normalizedDragDistance, 3);
       this.element.style.opacity = opacity;
-      let that = this;
-      setTimeout(that.resetYPos.bind(that), 32);
-      //setTimeout(this.resetYPos, 1000);
+      setTimeout(this.resetYPos.bind(this), 32);
     } else {
       if(this.resetting && this.targetY > 0) {
         this.dayObj.delete(this);
