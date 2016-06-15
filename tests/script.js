@@ -480,8 +480,6 @@ function TimeBlock(day, dayObj, event, minWidth) {
     this.adjustBounds();
     // Updates its DOM element to reflect its current state
     this.updateDOM();
-    // Set and draw the start and end times label of the timeblock
-    this.drawTime();
   };
 
   /**
@@ -555,6 +553,7 @@ function TimeBlock(day, dayObj, event, minWidth) {
   this.updateDOM = function() {
     this.element.style.left = (this.left/this.day.offsetWidth)*100 + '%';
     this.element.style.width = (this.width/this.day.offsetWidth)*100 + '%';
+    this.drawTime();
   };
 
   /**
@@ -564,7 +563,7 @@ function TimeBlock(day, dayObj, event, minWidth) {
     let clientX = event.clientX !== undefined ? event.clientX : event.touches[0].clientX;
     let clientY = event.clientY !== undefined ? event.clientY : event.touches[0].clientY;
     this.scrollTarget = event.target.className;
-    if(event.target.className === 'time-block' || event.target.className === 'time-indicator') {
+    if(event.target.className.includes('time-block') || event.target.className.includes('time-indicator')) {
       this.pan = true;
       this.cursorOffset = clientX - this.left - this.day.offsetLeft;
       this.startY = clientY;
@@ -583,6 +582,7 @@ function TimeBlock(day, dayObj, event, minWidth) {
       }
     }
     this.element.style.zIndex = 1;
+    this.updateDOM();
   };
 
   /**
@@ -604,7 +604,6 @@ function TimeBlock(day, dayObj, event, minWidth) {
     }
     this.resetYPos();
     this.updateDOM();
-    this.drawTime();
   };
 
   /**
@@ -634,17 +633,22 @@ function TimeBlock(day, dayObj, event, minWidth) {
    *  Creates the DOM element of the label showing the start and end times for the timeblock.
    */
   this.drawTime = function() {
+    // get times
     let [startTime, endTime] = this.getTimeRange();
-    let div = document.createElement('div');
-    div.className = 'time-indicator';
-    div.innerText = startTime + ' - ' + endTime;
-    //remove existing times
-    while(this.element.childElementCount > 2) {
-      this.element.children[2].remove();
+    // get time label element
+    let timeLabel = this.element.getElementsByClassName('time-indicator');
+    // If it does not exist yet
+    if(timeLabel.length === 0) {
+      // Create the time label
+      timeLabel = document.createElement('div');
+      timeLabel.className = 'time-indicator';
+      this.element.appendChild(timeLabel);
+    } else {
+      // otherwise set timelabel to first time label element
+      timeLabel = timeLabel[0];
     }
-
-    //and add the new one
-    this.element.appendChild(div);
+    // Update the text in the time label
+    timeLabel.innerText = startTime + ' - ' + endTime;
   };
   /**
    *  Get the start and end times of this timeblock.
@@ -787,8 +791,8 @@ function mDown(event) {
       if(event.target.className.includes('handle') || event.target.className === 'time-indicator') {
         dateRange.setCurrTimeBlock(dateRange.currDay.find(event.target.parentElement));
       }
-      dateRange.currTimeBlock.startInteraction(event);
     }
+    dateRange.currTimeBlock.startInteraction(event);
   }
 }
 
