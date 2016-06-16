@@ -1,3 +1,14 @@
+document.getElementById('fab').addEventListener('click', toggleModal, false);
+var modal = document.getElementById('modal-wrapper');
+function toggleModal(event) {
+  if(modal.className.includes('modal-hide')) {
+    modal.className = modal.className.replace('hide', 'show');
+  } else {
+    modal.className = modal.className.replace('show', 'hide');
+  }
+}
+
+
 
 const day = document.getElementById("block");
 //const dayObj = new Day(day);
@@ -826,6 +837,9 @@ function mDown(event) {
       }
       dateRange.currTimeBlock.startInteraction(event);
     }
+    if(event.target.className.includes('modal-wrapper')) {
+      toggleModal(event);
+    }
   }
 }
 
@@ -853,4 +867,5 @@ function scroll(event) {
       event.preventDefault();
       dateRange.currTimeBlock.increment(event);
   }
+  console.log(event);
 }
