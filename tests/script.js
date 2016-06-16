@@ -667,13 +667,6 @@ function TimeBlock(day, dayObj, event, minWidth) {
     }
     // Update the text in the time label
     timeLabel.innerText = startTime + ' - ' + endTime;
-    if(timeLabel.getBoundingClientRect().right > window.innerWidth-10) {
-      timeLabel.style.left = '';
-      timeLabel.style.right = '3px';
-    } else {
-      timeLabel.style.left = '3px';
-      timeLabel.style.right = '';
-    }
   };
   /**
    *  Get the start and end times of this timeblock.
