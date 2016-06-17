@@ -327,9 +327,8 @@ function Day(index, date, element, minTime, maxTime) {
   /**
    *  Goes through each pair of TimeBlocks to see if any are overlapping and simplifies them.
    */
-  this.cleanupOverlaps = function ()
-  {
-  const times = this.times;
+  this.cleanupOverlaps = function() {
+    const times = this.times;
     for(let i = 0; i < times.length; i++)
     {
       for(let j = 0; j < times.length; j++)
@@ -811,9 +810,10 @@ function TimeBlock(day, dayObj, event, minWidth) {
 
 function mDown(event) {
   if(event.buttons === 1 || (event.touches && event.touches.length === 1)) {
-    event.preventDefault();
+
     let clientX = event.clientX !== undefined ? event.clientX : event.touches[0].clientX;
     if(event.target.id === 'block') {
+      event.preventDefault();
       if(dateRange.currTimeIsSet()) {
         console.error('Last event never finished with last time-block.');
       }
@@ -823,6 +823,7 @@ function mDown(event) {
     } else if (event.target.className.includes('time-block')   ||
                event.target.className.includes('handle')       ||
                event.target.className.includes('time-indicator')) {
+      event.preventDefault();
       if(event.target.parentElement.className === 'block') {
         dateRange.currDay = dateRange.getDay(event.target.parentElement);
       } else if(event.target.parentElement.parentElement.className === 'block') {
@@ -867,5 +868,8 @@ function scroll(event) {
       event.preventDefault();
       dateRange.currTimeBlock.increment(event);
   }
-  console.log(event);
+  if(modal.className.includes('show')) {
+    event.preventDefault();
+  }
+
 }
