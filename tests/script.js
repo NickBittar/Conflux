@@ -44,15 +44,7 @@ function init() {
     let ticks = document.createElement('div');
     ticks.className = 'time-marks';
     for(let j = dateRange.startTime; j <= dateRange.endTime; j++) {
-      // Each hour should have at least 24 pixels of width
-      if(document.body.offsetWidth < (dateRange.endTime - dateRange.startTime)*24) {
-        let k = j-dateRange.startTime;
-        if(j != dateRange.startTime && j != dateRange.endTime) {
-          if(k%2 === 1) {
-            continue;
-          }
-        }
-      }
+
       let span = document.createElement('span');
       span.className = 'time-mark';
       let hour = j;
@@ -67,6 +59,15 @@ function init() {
         span.innerHTML += '<br>PM';
       } else if(hour%12===0) {
         span.innerHTML += '<br>AM';
+      }
+      // Each hour should have at least 24 pixels of width
+      if(document.body.offsetWidth < (dateRange.endTime - dateRange.startTime)*24) {
+        let k = j-dateRange.startTime;
+        if(j != dateRange.startTime && j != dateRange.endTime) {
+          if(k%2 === 1) {
+            span.innerHTML = '';
+          }
+        }
       }
       ticks.appendChild(span);
     }
