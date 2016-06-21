@@ -226,7 +226,7 @@ function DateRange(startDate, endDate, minTime, maxTime) {
   	let timeStart, timeEnd;	// Will hold the time in minutes
   	let l = rect.left-space.left;			// left side of div to left side of screen
   	let r = rect.right-space.left;			// right side of div to left side of screen
-  	let w = $('.time-box')[0].clientWidth;	// screen width
+  	let w = document.querySelector('.block').clientWidth;	// screen width
 
   	//Fix edge case errors that result in -1:58AM on the left and 12:01PM on right
   	if(l < 0) { l = 0; }
@@ -847,6 +847,20 @@ function mDown(event) {
     if(event.target.className.includes('modal-wrapper')) {
       toggleModal(event);
     }
+
+    /* For showing/hiding days */
+    if (event.target.className.includes('day-date')) {
+      toggleDay(event.target);
+    }
+  }
+}
+
+function toggleDay(target) {
+  let dayCard = target.parentElement;
+  if(dayCard.style.maxHeight !== '64px') {
+    dayCard.style.maxHeight = '64px';
+  } else {
+    dayCard.style.maxHeight = '356px';
   }
 }
 
