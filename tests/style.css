@@ -176,6 +176,7 @@ body {
 .modal-hide {
 	opacity: 0;
 	pointer-events: none;
+	transition-delay: 150ms;
 }
 .modal {
 	display: center;
@@ -185,4 +186,22 @@ body {
 	box-shadow: 0 6px 12px rgba(0,0,0,0.12), 0 6px 6px rgba(0,0,0,0.24);
 	font-size: 24px;
 	padding: 32px;
+	transition: transform 300ms cubic-bezier(.25,.8,.25,1) 150ms;
+}
+.modal-down {
+	transform: translateY(0px);
+}
+.modal-up {
+	transform: translateY(-70vh);
+	transition-delay: 0ms;
+}
+footer {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	width: 100vw;
+	height: 200px;
+	background-color: #212121;
+	color: #e0e0e0;
 }

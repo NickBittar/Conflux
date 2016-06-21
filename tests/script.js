@@ -1,10 +1,13 @@
 document.getElementById('fab').addEventListener('click', toggleModal, false);
 var modal = document.getElementById('modal-wrapper');
+var modalWindow = document.getElementById('modal');
 function toggleModal(event) {
   if(modal.className.includes('modal-hide')) {
     modal.className = modal.className.replace('hide', 'show');
+    modalWindow.className = modalWindow.className.replace('up', 'down');
   } else {
     modal.className = modal.className.replace('show', 'hide');
+    modalWindow.className = modalWindow.className.replace('down', 'up');
   }
 }
 
