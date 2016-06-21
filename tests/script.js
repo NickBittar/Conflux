@@ -10,6 +10,9 @@ function toggleModal(event) {
     modalWindow.className = modalWindow.className.replace('down', 'up');
   }
 }
+function exportData() {
+  console.log(dateRange.export(1, 'Nick'));
+}
 
 
 
@@ -187,22 +190,22 @@ function DateRange(startDate, endDate, minTime, maxTime) {
       let currDay;
       let data = { eventId, name, times: [], };
 
-      for(let i in this.days)  // For each day
+      for(let i = 0; i < this.days.length; i++)  // For each day
       {
         // Sets the current day to correct day based on the index of the array we are at
         currDay = new Date(this.startDate);
         currDay.setDate(currDay.getDate()+i);
 
         // Goes through each time in the current day
-        for(j in this.days[i])  // For each time block in the day
+        for(let j = 0; j < this.days[i].times.length; j++)  // For each time block in the day
         {
           let [startMin, endMin] = this.getMinutes(this.days[i].times[j].element);
 
           let startTime = new Date(currDay.getTime()),
               endTime   = new Date(currDay.getTime());
 
-          startTime.setMinutes(startMin);
-          endTime.setMinutes(endMin);
+          startTime.setMinutes(startMin + currDay.getTimezoneOffset());
+          endTime.setMinutes(endMin + currDay.getTimezoneOffset());
 
           let newData = {start: startTime, end: endTime,};
 
