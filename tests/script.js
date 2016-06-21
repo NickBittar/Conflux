@@ -858,8 +858,10 @@ function mDown(event) {
 function toggleDay(target) {
   let dayCard = target.parentElement;
   if(dayCard.style.maxHeight !== '64px') {
+    target.style.zIndex = 5;
     dayCard.style.maxHeight = '64px';
   } else {
+    target.style.zIndex = 1;
     dayCard.style.maxHeight = '356px';
   }
 }
