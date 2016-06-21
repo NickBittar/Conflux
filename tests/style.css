@@ -213,3 +213,15 @@ footer {
 	background-color: #212121;
 	color: #e0e0e0;
 }
+@media (max-width: 768px) {
+	.day {
+		width: 100%;
+	}
+	.block {
+		margin-left: 0px;
+		margin-right: 0px;
+	}
+	.time-marks {
+		margin: 8px;
+	}
+}
