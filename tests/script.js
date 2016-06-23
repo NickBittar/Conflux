@@ -1,18 +1,42 @@
 document.getElementById('fab').addEventListener('click', toggleModal, false);
+document.getElementById('submit').addEventListener('click', submit, false);
+document.getElementById('modal-close').addEventListener('click', toggleModal, false);
+document.getElementById('modal-overlay').addEventListener('click', toggleModal, false);
+
 var modal = document.getElementById('modal-wrapper');
 var modalWindow = document.getElementById('modal');
 function toggleModal(event) {
-  if(modal.className.includes('modal-hide')) {
-    modal.className = modal.className.replace('hide', 'show');
-    modalWindow.className = modalWindow.className.replace('up', 'down');
-  } else {
-    modal.className = modal.className.replace('show', 'hide');
-    modalWindow.className = modalWindow.className.replace('down', 'up');
+  if(!document.getElementById('modal-content').innerText.includes('Submitting...')) {
+    if(modal.className.includes('modal-hide')) {
+      showModal();
+    } else {
+      hideModal();
+    }
   }
 }
-function exportData() {
-  console.log(dateRange.export(1, 'Nick'));
+function showModal() {
+  modal.className = modal.className.replace('hide', 'show');
+  modalWindow.className = modalWindow.className.replace('up', 'down');
 }
+function hideModal() {
+  modal.className = modal.className.replace('show', 'hide');
+  modalWindow.className = modalWindow.className.replace('down', 'up');
+}
+function submit() {
+  let name = document.getElementById('name').value.trim();
+  if(!name) { return false; }
+
+  // success
+  //Lock modal
+  console.log(dateRange.export(1, name));
+  document.getElementsByClassName('modal-content')[0].innerHTML = '<h2>Submitting...</h2>';
+  setTimeout(function() {
+    document.getElementsByClassName('modal-content')[0].innerHTML = '<h2>Submitted!</h2>';
+    // disable timeblock interactions
+    removeEventListeners();
+  }, 2000);
+}
+
 
 
 
@@ -75,19 +99,36 @@ function init() {
 
     startDate.setDate(startDate.getDate()+1);
   }
+  // Add event listeners for each day to collapse/expand
+  const daysList = document.querySelectorAll('.day-date');
+  for(let i = 0; i < daysList.length; i++) {
+    daysList[i].addEventListener('click', function(){toggleDay(event.target);}, false);
+  }
 }
 
 /* EVENT LISTENERS */
-window.addEventListener('mousedown', mDown, false);
-window.addEventListener('mousemove', mMove, false);
-window.addEventListener('mouseup', mUp, false);
-window.addEventListener('touchstart', mDown, false);
-window.addEventListener('touchmove', mMove, false);
-window.addEventListener('touchend', mUp, false);
 
-window.addEventListener('wheel', scroll, false);
+addEventListeners();
+function addEventListeners() {
+  window.addEventListener('mousedown', mDown, false);
+  window.addEventListener('mousemove', mMove, false);
+  window.addEventListener('mouseup', mUp, false);
+  window.addEventListener('touchstart', mDown, false);
+  window.addEventListener('touchmove', mMove, false);
+  window.addEventListener('touchend', mUp, false);
 
+  window.addEventListener('wheel', scroll, false);
+}
+function removeEventListeners() {
+  window.removeEventListener('mousedown', mDown, false);
+  window.removeEventListener('mousemove', mMove, false);
+  window.removeEventListener('mouseup', mUp, false);
+  window.removeEventListener('touchstart', mDown, false);
+  window.removeEventListener('touchmove', mMove, false);
+  window.removeEventListener('touchend', mUp, false);
 
+  window.removeEventListener('wheel', scroll, false);
+}
 
 ///
 //////
@@ -844,14 +885,6 @@ function mDown(event) {
         dateRange.setCurrTimeBlock(dateRange.currDay.find(event.target.parentElement));
       }
       dateRange.currTimeBlock.startInteraction(event);
-    }
-    if(event.target.className.includes('modal-wrapper')) {
-      toggleModal(event);
-    }
-
-    /* For showing/hiding days */
-    if (event.target.className.includes('day-date')) {
-      toggleDay(event.target);
     }
   }
 }
