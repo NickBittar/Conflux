@@ -127,7 +127,7 @@ body {
 	white-space: nowrap;
 	cursor: default;
 	box-shadow: 0px 0px 0px 2px white, 0px 0px 0px 3px black;
-	left: 3px;
+	
 }
 .time-marks {
 	display: flex;
