@@ -72,7 +72,6 @@ body {
 	height: 200px;
 	background-color: #ccd;
 	position: relative;
-	cursor: cell;
 	margin: 36px 24px 8px;
 }
 .time-block {
@@ -127,7 +126,7 @@ body {
 	white-space: nowrap;
 	cursor: default;
 	box-shadow: 0px 0px 0px 2px white, 0px 0px 0px 3px black;
-	
+
 }
 .time-marks {
 	display: flex;
@@ -264,6 +263,9 @@ footer {
 	height: 200px;
 	background-color: #212121;
 	color: #e0e0e0;
+}
+.disable {
+	pointer-events: none;
 }
 @media (max-width: 768px) {
 	.day {

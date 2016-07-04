@@ -34,6 +34,11 @@ function submit() {
     document.getElementsByClassName('modal-content')[0].innerHTML = '<h2>Submitted!</h2>';
     // disable timeblock interactions
     removeEventListeners();
+    document.getElementById('fab').remove();
+    // Disable manipulations of time-blocks
+    document.querySelectorAll('.time-block').forEach(function(tb) {
+      tb.className += ' disable';
+    });
   }, 2000);
 }
 
