@@ -125,6 +125,40 @@ function DateRange(startDate, endDate, minTime, maxTime) {
     return data;
   };
 
+  this.import = function(data) {
+    // data = {
+    //   eventId: 1,
+    //   name: 'Nick',
+    //   times: [
+    //     start: DateTime,
+    //       end: DateTime,
+    //   ],
+    // }
+    let currDay = new Date(this.startDate);
+    currDay.setMinutes(currDay.getMinutes() + currDay.getTimezoneOffset());
+    let days = [];
+    for(let i = 0; i < data.times.length; i++) {
+      let index = daysBetween(currDay, data.times[i].start);
+      if (days[index] === undefined) {
+        days[index] = [];
+      }
+      days[index].push(data.times[i]);
+    }
+    let index = 0;
+    while(daysBetween(currDay, this.endDate) >= 0)
+    {
+      console.info(currDay);
+      if (days[index] === undefined) {
+        // Make day red
+      } else {
+        // Create time blocks
+      }
+      currDay.setDate(currDay.getDate()+1);
+      index++;
+    }
+    console.log(days);
+  };
+
   /**
    *  WILL BE REPLACED BY TIMEBLOCK FUNCTION
    */

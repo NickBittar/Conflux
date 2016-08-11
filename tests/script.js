@@ -28,7 +28,9 @@ function submit() {
 
   // success
   //Lock modal
-  console.log(dateRange.export(1, name));
+  let exportData = dateRange.export(1, name);
+  //exportData = JSON.stringify(exportData);
+  dateRange.import(exportData);
   document.getElementsByClassName('modal-content')[0].innerHTML = '<h2>Submitting...</h2>';
   setTimeout(function() {
     document.getElementsByClassName('modal-content')[0].innerHTML = '<h2>Submitted!</h2>';
